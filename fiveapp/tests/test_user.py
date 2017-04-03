@@ -4,16 +4,23 @@ from datetime import datetime, timedelta
 from django.test import Client
 
 from django.test import TestCase
-
+from minimocktest import MockTestCase
+import mock
 from fiveapp.models import Users, Chats, Opentok
 from fiveapp.utils import now
 
 
-class UserTests(TestCase):
+def simple_generate_token(session_id):
+    return 'token1'
+
+def simple_generate_session():
+    return 'session1'
+
+
+class UserTests(TestCase, MockTestCase):
     def setUp(self):
         self.client = Client()
         Opentok(mode='development', api_key='11', api_secret='2121').save()
-
 
     def tearDown(self):
         pass
@@ -23,7 +30,6 @@ class UserTests(TestCase):
         response = self.client.post('/fiveapp/user', json.dumps(data), content_type="application/json")
         assert response.status_code == 200
         assert Users.objects.all().count() == 1
-
 
     def test_to_check_creation_of_user_without_firebase_id(self):
         data = {'facebook_id': '11', 'fb_data': {'name': 'xyz', 'age': '22'}}
@@ -41,8 +47,8 @@ class UserTests(TestCase):
     def test_chat_time_for_existing_user(self):
         user = Users()
         user.save()
-        data = {"user_uuid":user.user_uuid}
-        response = self.client.post('/fiveapp/get_chat_details', json.dumps(data), content_type="application/json")
+        data = {"user_uuid": user.user_uuid}
+        response = self.client.post('/fiveapp/next_chat_time', json.dumps(data), content_type="application/json")
         assert response.status_code == 400
         res_data = json.loads(response.content)
         assert res_data['error'] == "You don't have any chats Scheduled"
@@ -52,7 +58,7 @@ class UserTests(TestCase):
         user.save()
         data = {"user_uuid": user.user_uuid}
         Chats(userA=user, userB=user, chat_time=now()).save()
-        response = self.client.post('/fiveapp/get_chat_details', json.dumps(data), content_type="application/json")
+        response = self.client.post('/fiveapp/next_chat_time', json.dumps(data), content_type="application/json")
         assert response.status_code == 200
         res_data = json.loads(response.content)
         assert res_data['chat_time'] is not None
@@ -63,13 +69,13 @@ class UserTests(TestCase):
         data = {"user_uuid": user.user_uuid}
         chat_time = now() - timedelta(0, 300)
         Chats(userA=user, userB=user, chat_time=chat_time).save()
-        response = self.client.post('/fiveapp/get_chat_details', json.dumps(data), content_type="application/json")
+        response = self.client.post('/fiveapp/next_chat_time', json.dumps(data), content_type="application/json")
         assert response.status_code == 400
         res_data = json.loads(response.content)
         assert res_data['error'] == "You don't have any chats Scheduled"
 
-
-    def test_opentok_session_id(self):
+    @mock.patch('fiveapp.views.generate_opentok_token', side_effect=simple_generate_token)
+    def test_opentok_session_id(self, urandom_function):
         user = Users()
         user.save()
         data = {"user_uuid": user.user_uuid}
@@ -77,6 +83,21 @@ class UserTests(TestCase):
         response = self.client.post('/fiveapp/get_session', json.dumps(data), content_type="application/json")
         assert response.status_code == 200
         res_data = json.loads(response.content)
-        assert "opentok_session_id" in res_data
+        assert "sessionId" in res_data
+        self.assertEqual(res_data['sessionId'], '1212')
+        self.assertEqual(res_data['token'], 'token1')
 
 
+    @mock.patch('fiveapp.views.generate_opentok_token', side_effect=simple_generate_token)
+    @mock.patch('fiveapp.views.generate_opentok_session', side_effect=simple_generate_session)
+    def test_generation_of_new_opentok_session_id(self, x1, x2):
+        user = Users()
+        user.save()
+        data = {"user_uuid": user.user_uuid}
+        Chats(userA=user, userB=user, chat_time=now()).save()
+        response = self.client.post('/fiveapp/get_session', json.dumps(data), content_type="application/json")
+        assert response.status_code == 200
+        res_data = json.loads(response.content)
+        assert "sessionId" in res_data
+        self.assertEqual(res_data['sessionId'], 'session1')
+        self.assertEqual(res_data['token'], 'token1')

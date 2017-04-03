@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 
 # Create your views here.
-from opentok import OpenTok
+from opentok import OpenTok, opentok
 from rest_framework.decorators import api_view
 
 from fiveapp.models import Users, Chats, Opentok
@@ -16,7 +16,10 @@ from fiveapp.utils import now
 def error_response(msg, status=400):
     return JsonResponse({"error": msg}, status=status)
 
+
 SECONDS = 300
+
+
 @api_view(['POST'])
 def user(request):
     data = json.loads(request.body)
@@ -46,7 +49,7 @@ def user(request):
 
 
 @api_view(['POST'])
-def get_chat_time(request):
+def next_chat_time(request):
     data = json.loads(request.body)
     for key in ['user_uuid']:
         if key not in data or data[key] is None:
@@ -64,8 +67,6 @@ def get_chat_time(request):
     return JsonResponse(res_data)
 
 
-
-
 @api_view(['POST'])
 def get_session(request):
     data = json.loads(request.body)
@@ -75,18 +76,28 @@ def get_session(request):
 
     chat = get_chat_for_user(user_uuid=data['user_uuid'])
     time_diff = abs(chat.chat_time - now())
-    time_diff = (time_diff.days*24*60*60) + time_diff.seconds
+    time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds
     if chat is None or time_diff >= SECONDS:
         return error_response("You don't have any chats Scheduled")
 
-    if chat.opentok_session_id is None:
+    if not chat.opentok_session_id:
         opentok_session_id = generate_opentok_session()
         chat.opentok_session_id = opentok_session_id
         chat.save()
     else:
         opentok_session_id = chat.opentok_session_id
 
-    return JsonResponse({"opentok_session_id": opentok_session_id})
+    token = generate_opentok_token(opentok_session_id)
+    api_key = Opentok.get_api_key()
+    session_id = opentok_session_id
+
+    data = {
+        "token": token,
+        "sessionId": session_id,
+        "apiKey": api_key
+    }
+
+    return JsonResponse(data)
 
 
 def get_chat_for_user(user_uuid):
@@ -96,9 +107,8 @@ def get_chat_for_user(user_uuid):
 
     if not chats.exists():
         return None
-    else :
+    else:
         return chats.first()
-
 
 
 def generate_opentok_session():
@@ -107,3 +117,9 @@ def generate_opentok_session():
     session = opentok.create_session()
     return session.session_id
 
+
+def generate_opentok_token(session_id):
+    optok = Opentok.objects.filter(mode='development').first()
+    opentok = OpenTok(optok.api_key, optok.api_secret)
+    token = opentok.generate_token(session_id)
+    return token
