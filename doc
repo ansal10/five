@@ -1,0 +1,71 @@
+http://ec2-54-69-125-204.us-west-2.compute.amazonaws.com:8000/fiveapp
+
+
+
+/user  [POST]
+
+Request Body
+{
+	"facebook_id":"121",
+	"firebase_id":"121",
+	"fb_data":{...}
+}
+
+Response Success
+{
+	"new_signup": true or false,
+    "user_uuid": "users id"
+}
+
+Error Response
+{
+	"error": "error reason"
+}
+
+
+
+
+
+
+
+/next_chat_time [POST]
+Request
+{
+	"user_uuid":"12121"
+}
+Response Success
+{
+	"chat_time":"iso8601 date time format"
+}
+
+Response Failure
+{
+	"error": "You don't have any chats Scheduled"
+}
+
+
+
+
+
+
+
+
+
+
+
+/get_session$ [POST]
+Request
+{
+	"user_uuid":"user_uuid"
+}
+
+Response Success
+{
+    "token": "w1",
+    "sessionId": "1212",
+    "apiKey": "21212"
+}
+Response Failure
+{
+	"error": "You don't have any chats Scheduled"
+}
