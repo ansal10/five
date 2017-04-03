@@ -6,6 +6,7 @@ DATABASES = {
         'NAME': 'five',
         'HOST': 'localhost',
         'PORT': '5432',
-        'USERNAME': 'ansal'
-    }
+        'USERNAME': 'deploy',
+        'PASSWORD': 'deploy'
+}
 }
