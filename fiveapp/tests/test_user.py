@@ -10,7 +10,6 @@ import mock
 from fiveapp.models import Users, Chats, Opentok
 from fiveapp.utils import now
 
-
 # def simple_generate_token(session_id):
 #     return 'token1'
 
@@ -20,8 +19,13 @@ def get_opentok_details(session_id):
 def simple_generate_session():
     return 'session1'
 
+def auth_headers( username, password=''):
+    credentials = base64.encodestring('%s:%s' % (username, password)).strip()
+    auth_string = 'Basic %s' % credentials
+    header = {'HTTP_AUTHORIZATION': auth_string}
+    return header
 
-class UserTests(TestCase, MockTestCase):
+class UserTests(TestCase):
     def setUp(self):
         self.client = Client()
         Opentok(mode='development', api_key='11', api_secret='2121').save()
@@ -155,3 +159,55 @@ class UserTests(TestCase, MockTestCase):
         user.refresh_from_db()
         self.assertIn("a", user.fb_data)
         self.assertIn("b", user.filters)
+
+
+class RatingTests(TestCase):
+
+    def setUp(self):
+        self.userA, _ = Users.objects.get_or_create(firebase_user_id='12')
+        self.userB, _ = Users.objects.get_or_create(firebase_user_id='21')
+        self.chat, _ = Chats.objects.get_or_create(userA=self.userA, userB=self.userB, chat_time = now(), opentok_session_id='111')
+        self.client = Client()
+        pass
+
+    def tearDown(self):
+        Users.objects.all().delete()
+        Chats.objects.all().delete()
+        pass
+
+    def test_rating_first_time(self):
+        data = {'opentok_session_id':'111', 'ratings':{'looks':5, 'feels':3}}
+        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json', **auth_headers(self.userA.user_uuid))
+        self.assertEqual(res.status_code, 200)
+        self.userB.refresh_from_db()
+        self.assertIn('total_rating_counts', self.userB.avg_rating)
+        self.assertEqual(self.userB.avg_rating['total_rating_counts'], 1)
+        self.assertEqual(self.userB.avg_rating['looks'], 5)
+
+
+    def test_rating_second_time(self):
+        self.chat.rating_by_userA = {'looks':1, 'total_rating_counts':2}
+        self.chat.save()
+        data = {'opentok_session_id': '111', 'ratings': {'looks': 5, 'feels': 3}}
+        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
+                               **auth_headers(self.userA.user_uuid))
+        self.assertEqual(res.status_code, 400)
+        d = json.loads(res.content)
+        self.assertIn('error', d)
+
+    def test_both_way_rating(self):
+        data = {'opentok_session_id': '111', 'ratings': {'looks': 5, 'feels': 3}}
+        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
+                               **auth_headers(self.userA.user_uuid))
+        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
+                               **auth_headers(self.userB.user_uuid))
+
+        self.assertEqual(res.status_code, 200)
+        self.userB.refresh_from_db()
+        self.userA.refresh_from_db()
+        self.assertIn('total_rating_counts', self.userB.avg_rating)
+        self.assertIn('total_rating_counts', self.userA.avg_rating)
+        self.assertEqual(self.userB.avg_rating['total_rating_counts'], 1)
+        self.assertEqual(self.userA.avg_rating['total_rating_counts'], 1)
+        self.assertEqual(self.userB.avg_rating['looks'], 5)
+        self.assertEqual(self.userA.avg_rating['looks'], 5)

@@ -21,9 +21,9 @@ class Users(models.Model):
     firebase_user_id = models.CharField(db_index=True, max_length=255, null=False)
     last_visited = models.DateTimeField()
     fb_link = models.CharField(max_length=255)
-    fb_data = JSONField(null=True)
-    filters = JSONField(null=True)
-    avg_rating = JSONField(null=True)
+    fb_data = JSONField(default={}, null=True)
+    filters = JSONField(default={}, null=True)
+    avg_rating = JSONField(default={}, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -37,9 +37,9 @@ class Chats(models.Model):
     userA = models.ForeignKey(Users, related_name='userA', db_index=True)
     userB = models.ForeignKey(Users, related_name='userB', db_index=True)
     chat_time = models.DateTimeField(max_length=255)
-    opentok_session_id = models.CharField(max_length=255)
-    rating_by_userA = JSONField(null=True)
-    rating_by_userB = JSONField(null=True)
+    opentok_session_id = models.CharField(max_length=255, db_index=True)
+    rating_by_userA = JSONField(default={}, null=True)
+    rating_by_userB = JSONField(default={}, null=True)
 
 
 class Opentok(models.Model):

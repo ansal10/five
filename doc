@@ -76,6 +76,34 @@ Response
 
 
 
+/rate [POST] post rating after chat
+Request Body
+{
+    "opentok_session_id":"1212",
+    "ratings":{
+        "param1": Double or Integer,
+        "param2": Double or Integer,
+        .
+        .
+        .
+    }
+}
+
+Response Success
+{
+    "status": "ok"
+}
+
+Response Error
+{
+    "error": "You already posted for same chat"
+}
+
+
+
+
+
+
 
 
 /get_session$ [POST]

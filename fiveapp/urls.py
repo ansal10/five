@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^next_chat$', view=views.next_chat, name='get chat details'),
     url(r'^get_session$', view=views.get_session, name='get session'),
     url(r'^update_user_details', view=views.update_user_details, name='update user details'),
+    url(r'^rating', view=views.update_ratings, name='Update Ratings'),
     url(r'^test$', view=views.test, name='Test Server')
 ]

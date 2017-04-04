@@ -17,6 +17,7 @@ def error_response(msg, status=400):
 
 
 SECONDS = 300
+TOTAL_RATING_COUNT = 'total_rating_counts'
 
 @api_view(['POST'])
 def user(request):
@@ -75,7 +76,7 @@ def next_chat(request):
     chat, on_going_chat = get_current_or_next_chat_for_user(user_uuid)
 
     if chat is None:
-        return JsonResponse({"chat":None})
+        return JsonResponse({"chat": None})
 
     time_diff = abs(chat.chat_time - now())
     time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds if not on_going_chat else 0
@@ -111,7 +112,7 @@ def get_session(request):
     time_diff = abs(chat.chat_time - now())
     time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds
     if chat is None or time_diff >= SECONDS:
-        return JsonResponse({"session":None})
+        return JsonResponse({"session": None})
 
     if not chat.opentok_session_id:
         opentok_session_id = generate_opentok_session()
@@ -131,6 +132,41 @@ def get_session(request):
     }
 
     return JsonResponse({"session": data})
+
+
+@api_view(['POST'])
+def update_ratings(request):
+    user_uuid, password = utils.retrieve_username_password_from_authorization(request)
+    if not Users.objects.filter(user_uuid=user_uuid).exists():
+        return error_response("Unauthorized Access", 401)
+    user = Users.objects.get(user_uuid=user_uuid)
+    data = json.loads(request.body)
+    opentok_session_id = data['opentok_session_id']
+    ratings = data['ratings']
+    chat = Chats.objects.get(opentok_session_id=opentok_session_id)
+    if chat.userA == user:
+        other_user = chat.userB
+        rating_existed = True if chat.rating_by_userA else False
+        chat.rating_by_userA = ratings
+    else:
+        other_user = chat.userA
+        rating_existed = True if chat.rating_by_userB else False
+        chat.rating_by_userB = ratings
+    chat.save()
+
+    if not rating_existed:
+        total_counts = other_user.avg_rating.get('total_rating_counts', 0)
+        for key, val in ratings.items():
+            avg_val = other_user.avg_rating.get(key, 0)
+            avg_val = ((avg_val * total_counts) + val) / ((total_counts + 1) * 1.0)
+            other_user.avg_rating[key] = avg_val
+        other_user.avg_rating[TOTAL_RATING_COUNT] = total_counts + 1
+        other_user.save()
+
+        return JsonResponse({"status": "ok"})
+
+    else:
+        return error_response("You have already rated this User for Same Call", 400)
 
 
 def get_current_or_next_chat_for_user(user_uuid):
@@ -174,4 +210,4 @@ def get_opentok_details(opentok_session_id):
 
 
 def test(request):
-    return JsonResponse({"author":"Anas MD"})
+    return JsonResponse({"author": "Anas MD"})
