@@ -32,7 +32,7 @@ class UserTests(TestCase, MockTestCase):
     def auth_headers(self, username, password):
         credentials = base64.encodestring('%s:%s' % (username, password)).strip()
         auth_string = 'Basic %s' % credentials
-        header = {'HTTP_AUTHORIZATION': auth_string}
+        header = {'Authorization': auth_string}
         return header
 
     def test_to_check_creation_of_user(self):

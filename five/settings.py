@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'fiveapp.middleware.logger_middleware.LoggerMiddleWare',
 ]
 
 ROOT_URLCONF = 'five.urls'

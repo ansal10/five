@@ -1,12 +1,10 @@
 import json
-from datetime import timedelta, datetime
+from datetime import timedelta
 
-import pytz
 from django.db.models import Q
 from django.http import JsonResponse
-
 # Create your views here.
-from opentok import OpenTok, opentok
+from opentok import OpenTok
 from rest_framework.decorators import api_view
 
 from fiveapp import utils
@@ -19,7 +17,6 @@ def error_response(msg, status=400):
 
 
 SECONDS = 300
-
 
 @api_view(['POST'])
 def user(request):
@@ -174,3 +171,7 @@ def get_opentok_details(opentok_session_id):
     api_key = Opentok.get_api_key()
     session_id = opentok_session_id
     return token, api_key, session_id
+
+
+def test(request):
+    return JsonResponse({"author":"Anas MD"})
