@@ -57,7 +57,7 @@ Response Success
             "seconds_left_for_chat_start": "12",
             "chat_start_time": "iso8601",
             "chat_end_time": "iso8601"
-            "session_data":{          // session_data will only be present when time left to call is less than 5 seconds
+            "session":{          // session_data will only be present when time left to call is less than 5 seconds
                 "token": "w1",
                 "sessionId": "1212",
                 "apiKey": "21212"
@@ -65,9 +65,9 @@ Response Success
         }
 }
 
-Response Failure
+Response
 {
-	"error": "You don't have any chats Scheduled"
+	"chat": null    // means no chat is scheduled
 }
 
 
@@ -88,11 +88,13 @@ Request
 
 Response Success
 {
-    "token": "w1",
-    "sessionId": "1212",
-    "apiKey": "21212"
+    "session": {
+            "token": "w1",
+            "sessionId": "1212",
+            "apiKey": "21212"
+    }
 }
-Response Failure
+Response success
 {
-	"error": "You don't have any chats Scheduled"
+	"session": None  // Means no chat was scheduled for this user in near future
 }

@@ -75,7 +75,7 @@ def next_chat(request):
     chat, on_going_chat = get_current_or_next_chat_for_user(user_uuid)
 
     if chat is None:
-        return error_response("You don't have any chats Scheduled")
+        return JsonResponse({"chat":None})
 
     time_diff = abs(chat.chat_time - now())
     time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds if not on_going_chat else 0
@@ -111,7 +111,7 @@ def get_session(request):
     time_diff = abs(chat.chat_time - now())
     time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds
     if chat is None or time_diff >= SECONDS:
-        return error_response("You don't have any chats Scheduled")
+        return JsonResponse({"session":None})
 
     if not chat.opentok_session_id:
         opentok_session_id = generate_opentok_session()
@@ -130,7 +130,7 @@ def get_session(request):
         "apiKey": api_key
     }
 
-    return JsonResponse(data)
+    return JsonResponse({"session": data})
 
 
 def get_current_or_next_chat_for_user(user_uuid):

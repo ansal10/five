@@ -32,7 +32,7 @@ class UserTests(TestCase, MockTestCase):
     def auth_headers(self, username, password):
         credentials = base64.encodestring('%s:%s' % (username, password)).strip()
         auth_string = 'Basic %s' % credentials
-        header = {'Authorization': auth_string}
+        header = {'HTTP_AUTHORIZATION': auth_string}
         return header
 
     def test_to_check_creation_of_user(self):
@@ -64,9 +64,9 @@ class UserTests(TestCase, MockTestCase):
         data = {"user_uuid": user.user_uuid}
         response = self.client.post('/fiveapp/next_chat', json.dumps(data),
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
-        assert response.status_code == 400
+        assert response.status_code == 200
         res_data = json.loads(response.content)
-        assert res_data['error'] == "You don't have any chats Scheduled"
+        self.assertIsNone(res_data['chat'])
 
     @mock.patch('fiveapp.views.get_opentok_details', side_effect=get_opentok_details)
     @mock.patch('fiveapp.views.generate_opentok_session', side_effect=simple_generate_session)
@@ -90,9 +90,9 @@ class UserTests(TestCase, MockTestCase):
         Chats(userA=user, userB=user, chat_time=chat_time).save()
         response = self.client.post('/fiveapp/next_chat', json.dumps(data),
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
-        assert response.status_code == 400
+        assert response.status_code == 200
         res_data = json.loads(response.content)
-        assert res_data['error'] == "You don't have any chats Scheduled"
+        self.assertIsNone(res_data['chat'])
 
 
     def test_chat_time_for_user_with_future_time(self):
@@ -119,9 +119,8 @@ class UserTests(TestCase, MockTestCase):
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
-        assert "sessionId" in res_data
-        self.assertEqual(res_data['sessionId'], '1212')
-        self.assertEqual(res_data['token'], 'token1')
+        self.assertEqual(res_data['session']['sessionId'], '1212')
+        self.assertEqual(res_data['session']['token'], 'token1')
 
     @mock.patch('fiveapp.views.get_opentok_details', side_effect=get_opentok_details)
     @mock.patch('fiveapp.views.generate_opentok_session', side_effect=simple_generate_session)
@@ -134,9 +133,8 @@ class UserTests(TestCase, MockTestCase):
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
-        assert "sessionId" in res_data
-        self.assertEqual(res_data['sessionId'], 'session1')
-        self.assertEqual(res_data['token'], 'token1')
+        self.assertEqual(res_data['session']['sessionId'], 'session1')
+        self.assertEqual(res_data['session']['token'], 'token1')
 
     def test_update_user_details(self):
         user = Users()
