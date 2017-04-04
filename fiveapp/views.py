@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from opentok import OpenTok, opentok
 from rest_framework.decorators import api_view
 
+from fiveapp import utils
 from fiveapp.models import Users, Chats, Opentok
 from fiveapp.utils import now
 
@@ -23,39 +24,39 @@ SECONDS = 300
 @api_view(['POST'])
 def user(request):
     data = json.loads(request.body)
-    for key in ['facebook_id', 'firebase_id', 'fb_data']:
+    # username, password = utils.retrieve_username_password_from_authorization(request)
+    for key in ['firebase_user_id', 'fb_data']:
         if key not in data or data[key] == None:
             return error_response("%s Key is not empty" % key)
 
-    firebase_id = data['firebase_id']
-    facebook_id = data['facebook_id']
+    firebase_user_id = data['firebase_user_id']
+    facebook_id = data.get('facebook_id', None)
     fb_data = data['fb_data']
 
     new_user = False
-    users = Users.objects.filter(firebase_id=firebase_id, facebook_id=facebook_id)
+    users = Users.objects.filter(firebase_user_id=firebase_user_id, facebook_id=facebook_id)
     if users.exists():
         user = users.first()
     else:
-        user = Users(firebase_id=firebase_id, facebook_id=facebook_id, fb_data=fb_data)
+        user = Users(firebase_user_id=firebase_user_id, facebook_id=facebook_id, fb_data=fb_data)
         new_user = True
 
     user.fb_data = fb_data
     user.save()
 
-    return JsonResponse({
+    json_res = JsonResponse({
         "new_signup": new_user,
         "user_uuid": user.user_uuid
     })
+    return json_res
 
 
 @api_view(['POST'])
 def next_chat_time(request):
-    data = json.loads(request.body)
-    for key in ['user_uuid']:
-        if key not in data or data[key] is None:
-            return error_response("%s Key is not empty" % key)
+    user_uuid, password = utils.retrieve_username_password_from_authorization(request)
+    if not Users.objects.filter(user_uuid=user_uuid).exists():
+        return error_response("Unauthorized Access", 401)
 
-    user_uuid = data['user_uuid']
     chat = get_chat_for_user(user_uuid)
 
     if chat is None:
@@ -69,12 +70,11 @@ def next_chat_time(request):
 
 @api_view(['POST'])
 def get_session(request):
-    data = json.loads(request.body)
-    for key in ['user_uuid']:
-        if key not in data or data[key] is None:
-            return error_response("%s Key is not empty" % key)
+    user_uuid, password = utils.retrieve_username_password_from_authorization(request)
+    if not Users.objects.filter(user_uuid=user_uuid).exists():
+        return error_response("Unauthorized Access", 401)
 
-    chat = get_chat_for_user(user_uuid=data['user_uuid'])
+    chat = get_chat_for_user(user_uuid=user_uuid)
     time_diff = abs(chat.chat_time - now())
     time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds
     if chat is None or time_diff >= SECONDS:

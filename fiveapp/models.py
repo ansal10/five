@@ -17,8 +17,8 @@ def get_uuid():
 
 class Users(models.Model):
     user_uuid = models.CharField(default=get_uuid, db_index=True, max_length=63)
-    facebook_id = models.CharField(db_index=True, max_length=255)
-    firebase_id = models.CharField(db_index=True, max_length=255)
+    facebook_id = models.CharField(db_index=True, max_length=255, null=True)
+    firebase_user_id = models.CharField(db_index=True, max_length=255, null=False)
     last_visited = models.DateTimeField()
     fb_link = models.CharField(max_length=255)
     fb_data = JSONField(null=True)
