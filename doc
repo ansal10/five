@@ -25,17 +25,44 @@ Error Response
 
 
 
+/update_user_details [POST]
+Request Body
+{
+    "fb_data":{...}  // optional
+    "filters":{...}  // optional
+}
+
+Response Success
+{
+    "user_uuid":"1212"
+}
+
+Response Error
+{
+    "error":"UnAuthorized access"
+}
 
 
 
-/next_chat_time [POST]
+
+
+/next_chat [POST]
 Request
 {
 	"user_uuid":"12121"
 }
 Response Success
 {
-	"chat_time":"iso8601 date time format"
+	"chat": {
+            "seconds_left_for_chat_start": "12",
+            "chat_start_time": "iso8601",
+            "chat_end_time": "iso8601"
+            "session_data":{          // session_data will only be present when time left to call is less than 5 seconds
+                "token": "w1",
+                "sessionId": "1212",
+                "apiKey": "21212"
+            }
+        }
 }
 
 Response Failure
