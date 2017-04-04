@@ -9,3 +9,6 @@ DATABASES = {
         'USERNAME': 'ansal'
     }
 }
+
+
+DEBUG = False

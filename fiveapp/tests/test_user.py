@@ -44,7 +44,7 @@ class UserTests(TestCase, MockTestCase):
 
     def test_to_check_creation_of_user_without_firebase_user_id(self):
         data = {'facebook_id': '11', 'fb_data': {'name': 'xyz', 'age': '22'}}
-        response = self.client.post('/fiveapp/user', json.dumps(data),
+        response = self.client.post('/fiveapp/user',
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
         assert response.status_code == 400
         assert Users.objects.all().count() == 0
@@ -62,7 +62,7 @@ class UserTests(TestCase, MockTestCase):
         user = Users()
         user.save()
         data = {"user_uuid": user.user_uuid}
-        response = self.client.post('/fiveapp/next_chat', json.dumps(data),
+        response = self.client.post('/fiveapp/next_chat',
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
@@ -75,7 +75,7 @@ class UserTests(TestCase, MockTestCase):
         user.save()
         data = {"user_uuid": user.user_uuid}
         Chats(userA=user, userB=user, chat_time=now()).save()
-        response = self.client.post('/fiveapp/next_chat', json.dumps(data),
+        response = self.client.post('/fiveapp/next_chat',
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
@@ -88,7 +88,7 @@ class UserTests(TestCase, MockTestCase):
         data = {"user_uuid": user.user_uuid}
         chat_time = now() - timedelta(0, 300)
         Chats(userA=user, userB=user, chat_time=chat_time).save()
-        response = self.client.post('/fiveapp/next_chat', json.dumps(data),
+        response = self.client.post('/fiveapp/next_chat',
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
@@ -101,7 +101,7 @@ class UserTests(TestCase, MockTestCase):
         data = {"user_uuid": user.user_uuid}
         chat_time = now() + timedelta(0, 600)
         Chats(userA=user, userB=user, chat_time=chat_time).save()
-        response = self.client.post('/fiveapp/next_chat', json.dumps(data),
+        response = self.client.post('/fiveapp/next_chat',
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
@@ -115,7 +115,7 @@ class UserTests(TestCase, MockTestCase):
         user.save()
         data = {"user_uuid": user.user_uuid}
         Chats(userA=user, userB=user, chat_time=now(), opentok_session_id='1212').save()
-        response = self.client.post('/fiveapp/get_session', json.dumps(data),
+        response = self.client.post('/fiveapp/get_session',
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
@@ -129,7 +129,7 @@ class UserTests(TestCase, MockTestCase):
         user.save()
         data = {"user_uuid": user.user_uuid}
         Chats(userA=user, userB=user, chat_time=now()).save()
-        response = self.client.post('/fiveapp/get_session', json.dumps(data),
+        response = self.client.post('/fiveapp/get_session',
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)

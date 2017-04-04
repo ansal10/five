@@ -10,3 +10,5 @@ DATABASES = {
         'PASSWORD': 'deploy'
 }
 }
+
+DEBUG = False

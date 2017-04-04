@@ -48,9 +48,7 @@ Response Error
 
 /next_chat [POST]
 Request
-{
-	"user_uuid":"12121"
-}
+
 Response Success
 {
 	"chat": {
@@ -81,10 +79,7 @@ Response
 
 
 /get_session$ [POST]
-Request
-{
-	"user_uuid":"user_uuid"
-}
+
 
 Response Success
 {
