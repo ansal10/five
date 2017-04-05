@@ -24,6 +24,13 @@ class Users(models.Model):
     fb_data = JSONField(default={}, null=True)
     filters = JSONField(default={}, null=True)
     avg_rating = JSONField(default={}, null=True)
+    name = models.CharField(null=True, max_length=255)
+    email = models.CharField(null=True, max_length=255)
+    gender = models.CharField(null=True, max_length=255)
+    fb_profile_data = JSONField(default={})
+
+
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -37,7 +44,7 @@ class Chats(models.Model):
     userA = models.ForeignKey(Users, related_name='userA', db_index=True)
     userB = models.ForeignKey(Users, related_name='userB', db_index=True)
     chat_time = models.DateTimeField(max_length=255)
-    opentok_session_id = models.CharField(max_length=255, db_index=True)
+    opentok_session_id = models.CharField(max_length=255, db_index=True, null=True)
     rating_by_userA = JSONField(default={}, null=True)
     rating_by_userB = JSONField(default={}, null=True)
 

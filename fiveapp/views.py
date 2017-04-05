@@ -5,12 +5,15 @@ import logging
 from django.db.models import Q
 from django.http import JsonResponse
 # Create your views here.
+from django.shortcuts import render
 from opentok import OpenTok
 from rest_framework.decorators import api_view
 
 from fiveapp import utils
+from utils import now
 from fiveapp.models import Users, Chats, Opentok
-from fiveapp.utils import now
+from fiveapp.utils import now, update_user_fb_profile_data
+
 logger = logging.getLogger('fiveapp')
 
 
@@ -42,12 +45,15 @@ def user(request):
             user = Users(firebase_user_id=firebase_user_id, facebook_id=facebook_id, fb_data=fb_data)
             new_user = True
 
+        user = update_user_fb_profile_data(user) if not user.fb_profile_data else user
+
         user.fb_data = fb_data
         user.save()
 
         json_res = JsonResponse({
             "new_signup": new_user,
-            "user_uuid": user.user_uuid
+            "user_uuid": user.user_uuid,
+            "gender":user.gender
         })
         return json_res
     except Exception as e:
@@ -208,6 +214,66 @@ def get_filters(request):
         logger.exception(e.message)
         return error_response("Server Error", 500)
 
+
+
+
+
+
+
+
+
+@api_view(['GET'])
+def chat_panel(request):
+    apikey = request.GET.get('api_key', None)
+    api_key = Opentok.get_api_key()
+    users = Users.objects.values('user_uuid', 'fb_link', 'fb_profile_data', 'name').all()
+    chats = Chats.objects.values('id', 'userA__user_uuid', 'userB__user_uuid', 'chat_time').all()
+    data ={
+        "users": users,
+        "chats": chats
+    }
+    return render(request, 'chat_panel.html', data)
+
+
+@api_view(['GET'])
+def retrive_users_and_chats(request):
+    apikey = request.GET.get('api_key', None)
+    api_key = Opentok.get_api_key()
+    if api_key != apikey:
+        return error_response("Unauthorized Access", 401)
+
+    users = Users.objects.values('user_uuid', 'link', 'fb_profile_data', 'name').all()
+    chats = Chats.objects.values('id', 'userA__user_uuid', 'userB__user_uuid', 'chat_time').all()
+    return JsonResponse({
+        "users":users,
+        "chats":chats
+    })
+
+@api_view(['POST'])
+def update_chats(request):
+    data = json.loads(request.body)
+    apikey = data.get('api_key', None)
+    api_key = Opentok.get_api_key()
+    chat_id = data.get('chat_id', None)
+    if chat_id:
+        Chats.objects.filter(id=chat_id).delete()
+        return JsonResponse({"status":"deleted"})
+
+    userA = Users.objects.get(user_uuid=data['usera_user_uuid'])
+    userB = Users.objects.get(user_uuid=data['userb_user_uuid'])
+    next_seconds = data['next_seconds']
+    chat_time = now() + timedelta(0, next_seconds)
+
+    q1 = Q(userA=userA) & Q(userB=userB)
+    q2 = Q(userA=userB) & Q(userB=userA)
+    from_time = now() - timedelta(1, 0)
+    q3 = Q(chat_time_gte=from_time)
+    q = Q(Q(q1 | q2) & q3)
+    if Chats.objects.filter(q).exists():
+        return error_response("You cannot schedule a call, u already have a chat scheduled since past day")
+    chat = Chats(userB=userB, userA=userA, chat_time=chat_time)
+    chat.save()
+    return JsonResponse({"status": "created"})
 
 
 

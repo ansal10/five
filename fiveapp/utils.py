@@ -1,10 +1,12 @@
 import base64
 from datetime import datetime
 from functools import wraps
+import facebook
 
 import pytz
 from django.http import JsonResponse
 
+FB_PROFILE_FIELDS = 'id,name,email,gender,first_name,last_name,link,relationship_status,cover'
 
 def now():
     return datetime.now(pytz.utc)
@@ -18,3 +20,17 @@ def retrieve_username_password_from_authorization(request):
     password = decoded_credentials[1]
 
     return username, password
+
+
+
+def update_user_fb_profile_data(user):
+    token = user.fb_data['token']
+    graph = facebook.GraphAPI(access_token=token)
+    d = graph.get_object('me', fields=FB_PROFILE_FIELDS)
+    user.fb_profile_data = d
+    user.name = d['name']
+    user.email = d['email']
+    user.gender = d['gender']
+    user.fb_link = d['link']
+    user.save()
+    return user
