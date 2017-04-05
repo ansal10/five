@@ -1,18 +1,17 @@
+import logging
+import os
 
 from django.utils.deprecation import MiddlewareMixin
 
-from fiveapp.utils import now
+logger = logging.getLogger('fiveapp')
 
 
 class LoggerMiddleWare(MiddlewareMixin):
 
     def process_request(self, request):
-        print "\n\n(%s):\tRequest path : %s" % (now(), request.path)
-        print "Request body : %s" % (request.body)
-        print "Request HTTP_AUTHORIZATION : %s" % (request.META.get('HTTP_AUTHORIZATION', None))
-
+        logger.info("\n\nURL : {}\nBODY : {}\nHTTP AUTHORIZATION : {}".format(request.path, request.body, request.META.get('HTTP_AUTHORIZATION', None)))
         return None
 
     def process_response(self, request, response):
-        print "Response: %s" % (response.content)
+        logger.info("\nResponse : {}".format(response.content))
         return response
