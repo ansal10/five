@@ -76,17 +76,23 @@ Response
 
 
 
-/rate [POST] post rating after chat
+/rating [POST] post rating after chat
 Request Body
 {
     "opentok_session_id":"1212",
     "ratings":{
-        "param1": Double or Integer,
-        "param2": Double or Integer,
-        .
-        .
-        .
-    }
+        "feedback":"......",
+        "share_profile": true/false,
+        "share_message": ".......",
+        "rating_params": {
+            "param1": Double or Integer,
+            "param2": Double or Integer,
+            .
+            .
+            .
+        }
+    },
+
 }
 
 Response Success

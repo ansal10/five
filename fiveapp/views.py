@@ -156,7 +156,7 @@ def update_ratings(request):
 
     if not rating_existed:
         total_counts = other_user.avg_rating.get('total_rating_counts', 0)
-        for key, val in ratings.items():
+        for key, val in ratings['rating_params'].items():
             avg_val = other_user.avg_rating.get(key, 0)
             avg_val = ((avg_val * total_counts) + val) / ((total_counts + 1) * 1.0)
             other_user.avg_rating[key] = avg_val

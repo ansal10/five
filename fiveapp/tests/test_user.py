@@ -176,7 +176,7 @@ class RatingTests(TestCase):
         pass
 
     def test_rating_first_time(self):
-        data = {'opentok_session_id':'111', 'ratings':{'looks':5, 'feels':3}}
+        data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True}}
         res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json', **auth_headers(self.userA.user_uuid))
         self.assertEqual(res.status_code, 200)
         self.userB.refresh_from_db()
@@ -188,7 +188,7 @@ class RatingTests(TestCase):
     def test_rating_second_time(self):
         self.chat.rating_by_userA = {'looks':1, 'total_rating_counts':2}
         self.chat.save()
-        data = {'opentok_session_id': '111', 'ratings': {'looks': 5, 'feels': 3}}
+        data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True}}
         res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
                                **auth_headers(self.userA.user_uuid))
         self.assertEqual(res.status_code, 400)
@@ -196,7 +196,7 @@ class RatingTests(TestCase):
         self.assertIn('error', d)
 
     def test_both_way_rating(self):
-        data = {'opentok_session_id': '111', 'ratings': {'looks': 5, 'feels': 3}}
+        data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True}}
         res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
                                **auth_headers(self.userA.user_uuid))
         res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
