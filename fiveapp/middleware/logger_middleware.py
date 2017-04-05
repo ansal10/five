@@ -9,9 +9,9 @@ logger = logging.getLogger('fiveapp')
 class LoggerMiddleWare(MiddlewareMixin):
 
     def process_request(self, request):
-        logger.info("\n\nURL : {}\nBODY : {}\nHTTP AUTHORIZATION : {}".format(request.path, request.body, request.META.get('HTTP_AUTHORIZATION', None)))
+        logger.info("URL : {}\nBODY : {}\nHTTP AUTHORIZATION : {}".format(request.path, request.body, request.META.get('HTTP_AUTHORIZATION', None)))
         return None
 
     def process_response(self, request, response):
-        logger.info("\nResponse : {}".format(response.content))
+        logger.info("\nResponse : {}\n\n".format(response.content))
         return response
