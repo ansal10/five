@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^get_session$', view=views.get_session, name='get session'),
     url(r'^update_user_details', view=views.update_user_details, name='update user details'),
     url(r'^rating', view=views.update_ratings, name='Update Ratings'),
+    url(r'^get_filters', view=views.get_filters, name='Retrieve Filters'),
     url(r'^test$', view=views.test, name='Test Server')
 ]

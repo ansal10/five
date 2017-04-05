@@ -74,6 +74,7 @@ def update_user_details(request):
         })
     except Exception as e:
         logger.exception(e.message)
+        return error_response("Server Error", 500)
 
 
 @api_view(['POST'])
@@ -112,6 +113,7 @@ def next_chat(request):
         return JsonResponse(res_data)
     except Exception as e:
         logger.exception(e.message)
+        return error_response("Server Error", 500)
 
 
 @api_view(['POST'])
@@ -147,6 +149,7 @@ def get_session(request):
         return JsonResponse({"session": data})
     except Exception as e:
         logger.exception(e.message)
+        return error_response("Server Error", 500)
 
 
 @api_view(['POST'])
@@ -185,6 +188,27 @@ def update_ratings(request):
             return error_response("You have already rated this User for Same Call", 400)
     except Exception as e:
         logger.exception(e.message)
+        return error_response("Server Error", 500)
+
+@api_view(['GET'])
+def get_filters(request):
+    try:
+        user_uuid, password = utils.retrieve_username_password_from_authorization(request)
+        if not Users.objects.filter(user_uuid=user_uuid).exists():
+            return error_response("Unauthorized Access", 401)
+
+        user = Users.objects.get(user_uuid=user_uuid)
+        filters = user.filters if user.filters else None
+
+        res_data = {
+            "filters": filters
+        }
+        return JsonResponse(res_data)
+    except Exception as e:
+        logger.exception(e.message)
+        return error_response("Server Error", 500)
+
+
 
 
 def get_current_or_next_chat_for_user(user_uuid):
@@ -209,13 +233,6 @@ def generate_opentok_session():
     opentok = OpenTok(optok.api_key, optok.api_secret)
     session = opentok.create_session()
     return session.session_id
-
-
-# def generate_opentok_token(session_id):
-#     optok = Opentok.objects.filter(mode='development').first()
-#     opentok = OpenTok(optok.api_key, optok.api_secret)
-#     token = opentok.generate_token(session_id)
-#     return token
 
 
 def get_opentok_details(opentok_session_id):

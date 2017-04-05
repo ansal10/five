@@ -127,3 +127,27 @@ Response success
 {
 	"session": None  // Means no chat was scheduled for this user in near future
 }
+
+
+
+
+
+
+
+
+/get_filters [GET]
+
+Response Success
+{
+    "filters": {
+        "age":22,
+        .
+        .
+        .
+    }
+}
+
+Response Success
+{
+    "filters": null   // if no filtes exist for this user
+}

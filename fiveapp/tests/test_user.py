@@ -160,6 +160,23 @@ class UserTests(TestCase):
         self.assertIn("a", user.fb_data)
         self.assertIn("b", user.filters)
 
+    def test_retrive_null_filters(self):
+        user = Users()
+        user.save()
+        response = self.client.get('/fiveapp/get_filters', **self.auth_headers(user.user_uuid, ''))
+        self.assertEqual(response.status_code, 200)
+        res =  json.loads(response.content)
+        self.assertIsNone(res['filters'])
+
+    def test_retrive_existing_filters(self):
+        user = Users(filters={'age_min':22, 'age_max':25, 'looking_for':['male', 'female']})
+        user.save()
+        response = self.client.get('/fiveapp/get_filters', **self.auth_headers(user.user_uuid, ''))
+        self.assertEqual(response.status_code, 200)
+        res =  json.loads(response.content)
+        self.assertIn('age_min', res['filters'])
+        self.assertIn('male', res['filters']['looking_for'])
+
 
 class RatingTests(TestCase):
 
@@ -211,3 +228,6 @@ class RatingTests(TestCase):
         self.assertEqual(self.userA.avg_rating['total_rating_counts'], 1)
         self.assertEqual(self.userB.avg_rating['looks'], 5)
         self.assertEqual(self.userA.avg_rating['looks'], 5)
+
+
+
