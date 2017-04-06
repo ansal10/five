@@ -3,11 +3,16 @@ Django==1.10.6
 django-filter==1.0.2
 djangorestframework==3.6.2
 enum34==1.1.6
+facebook-sdk==2.0.0
+funcsigs==1.0.2
 gevent==1.2.1
 greenlet==0.4.12
 Markdown==2.6.8
+MiniMockTest==0.5
+mock==2.0.0
 opentok==2.4.1
 packaging==16.8
+pbr==2.0.0
 psycopg2==2.7.1
 pyparsing==2.2.0
 pytz==2017.2
