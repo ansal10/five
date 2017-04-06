@@ -112,7 +112,16 @@ app.controller('ChatPanelIndexCtrl', function ($scope, $http) {
                 alert( response.data.error || 'Some error occurred' );
                 console.log(response.data)
             })
+    };
+
+    $scope.$watch('apikey', function () {
+       config = {
+        headers:  {
+            'Authorization': 'Basic '+$scope.apikey,
+            'Content-Type': 'application/json'
+        }
     }
+    })
 
 } );
 

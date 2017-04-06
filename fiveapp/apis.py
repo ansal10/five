@@ -227,7 +227,7 @@ def get_filters(request):
 def update_chats(request):
     data = json.loads(request.body)
     username, password = retrieve_username_password_from_authorization(request)
-    if username != 'ansal10':
+    if username != Opentok.get_api_key():
         return error_response('Unauthorized Access', 401)
     chat_id = data.get('chat_id', None)
     if chat_id:

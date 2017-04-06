@@ -32,7 +32,7 @@ from fiveapp.utils import DateTimeEncoder, retrieve_username_password_from_autho
 
 def retrieve_users_and_chats(request):
     username, password = retrieve_username_password_from_authorization(request)
-    if username != 'ansal10':
+    if username != Opentok.get_api_key():
         return error_response('Unauthorized Access', 401)
 
     users = Users.objects.values('user_uuid', 'fb_link', 'fb_profile_data', 'name', 'email').all()
