@@ -9,7 +9,7 @@ DATABASES = {
     }
 }
 
-DEBUG = False
+DEBUG = True
 
 LOGGING = {
     'version': 1,

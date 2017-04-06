@@ -1,4 +1,5 @@
 import base64
+import json
 from datetime import datetime
 from functools import wraps
 import facebook
@@ -34,3 +35,12 @@ def update_user_fb_profile_data(user):
     user.fb_link = d['link']
     user.save()
     return user
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            encoded_object = obj.__str__()
+        else:
+            encoded_object =super(DateTimeEncoder, self).default(obj)
+        return encoded_object

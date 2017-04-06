@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Simple Sidebar - Start Bootstrap Template</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/simple-sidebar.css" rel="stylesheet">
+
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                        Start Bootstrap
+                    </a>
+                </li>
+                <li>
+                    <a href="#">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#">Shortcuts</a>
+                </li>
+                <li>
+                    <a href="#">Overview</a>
+                </li>
+                <li>
+                    <a href="#">Events</a>
+                </li>
+                <li>
+                    <a href="#">About</a>
+                </li>
+                <li>
+                    <a href="#">Services</a>
+                </li>
+                <li>
+                    <a href="#">Contact</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>Simple Sidebar</h1>
+                        <p>This template has a responsive menu toggling system. The menu will appear collapsed on smaller screens, and will appear non-collapsed on larger screens. When toggled using the button below, the menu will appear/disappear. On small screens, the page content will be pushed off canvas.</p>
+                        <p>Make sure to keep all page content within the <code>#page-content-wrapper</code>.</p>
+                        <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle Menu</a>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-app="fiveApp" ng-controller="ChatPanelIndexCtrl" >
+                <div class="modal-body row">
+
+                    <span><h2 class="text-center">Schedule chats<button class="btn btn-danger" ng-click="resetPressed()">Reset</button></h2>
+
+                    </span>
+
+
+                        <div class="col-md-6">
+                        <!-- Your first column here -->
+                          <div class="btn-group" role="group">
+                                <button type="button" data-toggle="dropdown" value="1" class="btn btn-default btn-sm dropdown-toggle">
+                                    Select User A<span class="caret"></span>
+                                </button>
+                          <ul class="dropdown-menu">
+                              <li ng-repeat="user in data.users">
+                                      <a ng-click="userSelected('userA', user.user_uuid )" href="#" value="{{ user.user_uuid }}" >
+                                        {{ ( user.name || user.email || user.user_uuid ) }}
+                                      </a>
+                             </li>
+                          </ul>
+
+                        </div>
+                        <br/>
+                        <br/>
+                        <ul class="list-group" ng-if="userA">
+                            <li class="list-group-item list-group-item-success">UUID : {{ userA.user_uuid }}</li>
+                            <li class="list-group-item list-group-item-success">Name : {{ userA.name }}</li>
+                            <li class="list-group-item list-group-item-success">Email : {{ userA.email }}</li>
+                            <li class="list-group-item list-group-item-success">FB Link : {{ userA.fb_link }}</li>
+                        </ul>
+                    </div>
+
+                        <div class="col-md-6">
+                    <!-- Your second column here -->
+                        <div class="btn-group" role="group">
+                            <button type="button" data-toggle="dropdown" value="1" class="btn btn-default btn-sm dropdown-toggle">
+                                Select User B <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="user in data.users">
+                                  <a ng-click="userSelected('userB', user.user_uuid )" href="#" value="{{ user.user_uuid }}" >
+                                        {{ ( user.name || user.email || user.user_uuid ) }}
+                                  </a>
+                                </li>
+                            </ul>
+
+                        </div>
+                        <br/>
+                        <br/>
+                        <ul class="list-group" ng-if="userB">
+                            <li class="list-group-item list-group-item-success">UUID : {{ userB.user_uuid }}</li>
+                            <li class="list-group-item list-group-item-success">Name : {{ userB.name }}</li>
+                            <li class="list-group-item list-group-item-success">Email : {{ userB.email }}</li>
+                            <li class="list-group-item list-group-item-success">FB Link : {{ userB.fb_link }}</li>
+                        </ul>
+
+                    </div>
+                        <span ng-if="userA && userB">
+                            <div class="input-group">
+                              <span class="input-group-addon" id="basic-addon1">Schedule Chat in Next</span>
+                              <input type="number" class="form-control"  placeholder="Number of Seconds" ng-model="chat_in_seconds" />
+                              <span class="input-group-addon" id="basic-addon2" ng-click="newChat(chat_in_seconds)">Schedule Chat in next {{ chat_in_seconds }} Seconds</span>
+                            </div>
+
+                        </span>
+                </div>
+
+                <div class="modal-body row">
+                    <span><h2 class="text-center">Chats History</h2></span>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Chats History</div>
+                        <div class="panel-body">
+                            <p>Select Users to filter chats
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User A</th>
+                                    <th>User B</th>
+                                    <th>Chat Time(UTC)</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="chat in chats_visible">
+                                    <td>{{ chat.id }}
+                                    <td>{{ (chat.userA__name || chat.userA__email || chat.userA__user_uuid )}}</td>
+                                    <td>{{ (chat.userB__name || chat.userB__email || chat.userB__user_uuid ) }}</td>
+                                    <td>{{ chat.chat_time}}</td>
+                                    <td><button class="btn btn-danger" ng-click="deleteChat(chat.id)">Del</button> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="js/jquery-3.2.0.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="bootstrap/js/bootstrap.js"></script>
+
+    <!-- Angular JS -->
+    <script src="js/angular.min.js" ></script>
+
+
+    <script src="js/five.js" ></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+
+
+    </script>
+
+
+
+</body>
+
+</html>

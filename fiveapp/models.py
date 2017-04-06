@@ -39,6 +39,9 @@ class Users(models.Model):
         self.last_visited = now()
         super(Users, self).save(*args, **kwargs)
 
+    def to_json(self):
+        return self
+
 
 class Chats(models.Model):
     userA = models.ForeignKey(Users, related_name='userA', db_index=True)
@@ -47,6 +50,9 @@ class Chats(models.Model):
     opentok_session_id = models.CharField(max_length=255, db_index=True, null=True)
     rating_by_userA = JSONField(default={}, null=True)
     rating_by_userB = JSONField(default={}, null=True)
+
+    def to_json(self):
+        return self
 
 
 class Opentok(models.Model):

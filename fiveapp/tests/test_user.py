@@ -19,6 +19,9 @@ def get_opentok_details(session_id):
 def simple_generate_session():
     return 'session1'
 
+def mock_update_user_fb_profile_data(user):
+    return user
+
 def auth_headers( username, password=''):
     credentials = base64.encodestring('%s:%s' % (username, password)).strip()
     auth_string = 'Basic %s' % credentials
@@ -39,21 +42,24 @@ class UserTests(TestCase):
         header = {'HTTP_AUTHORIZATION': auth_string}
         return header
 
-    def test_to_check_creation_of_user(self):
+    @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
+    def test_to_check_creation_of_user(self, x):
         data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'}}
         response = self.client.post('/fiveapp/user', json.dumps(data),
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
         assert response.status_code == 200
         assert Users.objects.all().count() == 1
 
-    def test_to_check_creation_of_user_without_firebase_user_id(self):
+    @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
+    def test_to_check_creation_of_user_without_firebase_user_id(self, x):
         data = {'facebook_id': '11', 'fb_data': {'name': 'xyz', 'age': '22'}}
         response = self.client.post('/fiveapp/user',
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
         assert response.status_code == 400
         assert Users.objects.all().count() == 0
 
-    def test_to_check_re_post_of_user(self):
+    @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
+    def test_to_check_re_post_of_user(self, x):
         data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'}}
         response = self.client.post('/fiveapp/user', json.dumps(data),
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
@@ -72,8 +78,8 @@ class UserTests(TestCase):
         res_data = json.loads(response.content)
         self.assertIsNone(res_data['chat'])
 
-    @mock.patch('fiveapp.views.get_opentok_details', side_effect=get_opentok_details)
-    @mock.patch('fiveapp.views.generate_opentok_session', side_effect=simple_generate_session)
+    @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
+    @mock.patch('fiveapp.apis.generate_opentok_session', side_effect=simple_generate_session)
     def test_chat_time_for_user_with_scheduled_chat(self, x, y):
         user = Users()
         user.save()
@@ -113,7 +119,7 @@ class UserTests(TestCase):
         self.assertNotIn('session_data', res_data['chat'])
 
 
-    @mock.patch('fiveapp.views.get_opentok_details', side_effect=get_opentok_details)
+    @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
     def test_opentok_session_id(self, urandom_function):
         user = Users()
         user.save()
@@ -126,8 +132,8 @@ class UserTests(TestCase):
         self.assertEqual(res_data['session']['sessionId'], '1212')
         self.assertEqual(res_data['session']['token'], 'token1')
 
-    @mock.patch('fiveapp.views.get_opentok_details', side_effect=get_opentok_details)
-    @mock.patch('fiveapp.views.generate_opentok_session', side_effect=simple_generate_session)
+    @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
+    @mock.patch('fiveapp.apis.generate_opentok_session', side_effect=simple_generate_session)
     def test_generation_of_new_opentok_session_id(self, x1, x2):
         user = Users()
         user.save()
