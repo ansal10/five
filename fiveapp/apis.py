@@ -244,7 +244,7 @@ def update_chats(request):
 
     q1 = Q(userA=userA) & Q(userB=userB)
     q2 = Q(userA=userB) & Q(userB=userA)
-    from_time = now() - timedelta(0, 10)
+    from_time = now() - timedelta(1, 0)
     q3 = Q(chat_time__gte=from_time)
     q = Q(Q(q1 | q2) & q3)
     if Chats.objects.filter(q).exists():
