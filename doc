@@ -76,7 +76,7 @@ Response
 
 
 
-/rating [POST] post rating after chat
+/ratings [POST] post rating after chat
 Request Body
 {
     "opentok_session_id":"1212",

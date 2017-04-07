@@ -7,7 +7,7 @@ urlpatterns = [
     url(r'^next_chat$', view=apis.next_chat, name='get chat details'),
     url(r'^get_session$', view=apis.get_session, name='get session'),
     url(r'^update_user_details$', view=apis.update_user_details, name='update user details'),
-    url(r'^rating$', view=apis.update_ratings, name='Update Ratings'),
+    url(r'^ratings$', view=apis.update_ratings, name='Update Ratings'),
     url(r'^get_filters$', view=apis.get_filters, name='Retrieve Filters'),
     url(r'^update_chats$', view=apis.update_chats, name='New Chat'),
     url(r'^retrieve_users_and_chats$', view=views.retrieve_users_and_chats, name='Retrive all users and chats'),
