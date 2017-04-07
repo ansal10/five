@@ -97,7 +97,7 @@ def next_chat(request):
 
         chat, on_going_chat = get_current_or_next_chat_for_user(user_uuid)
 
-        if chat is None:
+        if chat is None or not chat.rating_by_userA  or not chat.rating_by_userB :
             return JsonResponse({"chat": None})
 
         other_user = chat.userA if chat.userA.user_uuid != user_uuid else chat.userB
