@@ -8,7 +8,9 @@ Request Body
 {
 	"facebook_id":"121",
 	"firebase_user_id":"121",
-	"fb_data":{...}
+	"fb_data":{...},
+	"fcm_token": "",  // optional
+	"app_id":"" // optional
 }
 
 Response Success

@@ -1,0 +1,8 @@
+#!/bin/bash
+cd /apps/FiveServer/five/
+git pull
+/apps/FiveServer/env/bin/pip install -r /apps/FiveServer/five/requirements.txt
+ENV=production /apps/FiveServer/env/bin/python /apps/FiveServer/five/manage.py migrate
+ps aux | grep "FiveServer" | awk '{print $2}' | xargs kill -9
+ENV=production /apps/FiveServer/env/bin/python /apps/FiveServer/five/manage.py runserver 0.0.0.0:8000 &
+ps aux | grep "FiveServer"

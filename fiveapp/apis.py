@@ -4,7 +4,7 @@ from datetime import timedelta
 import logging
 from django.db.models import Q
 from django.http import JsonResponse
-from opentok import OpenTok
+from opentok import OpenTok, MediaModes, ArchiveModes
 from rest_framework.decorators import api_view
 
 from fiveapp import utils
@@ -35,6 +35,8 @@ def user(request):
         firebase_user_id = data['firebase_user_id']
         facebook_id = data.get('facebook_id', None)
         fb_data = data['fb_data']
+        fcm_token = data.get('fcm_token', None)
+        app_id = data.get('app_id', None)
 
         new_user = False
         users = Users.objects.filter(firebase_user_id=firebase_user_id, facebook_id=facebook_id)
@@ -43,10 +45,13 @@ def user(request):
         else:
             user = Users(firebase_user_id=firebase_user_id, facebook_id=facebook_id, fb_data=fb_data)
             new_user = True
-
         user = update_user_fb_profile_data(user) if not user.fb_profile_data else user
 
-        user.fb_data = fb_data
+        #set conditional data
+        user.fb_data = fb_data if fb_data else user.fb_data
+        user.fcm_token = fcm_token if fcm_token else user.fcm_token
+        user.app_id = app_id if app_id else user.app_id
+
         user.save()
 
         json_res = JsonResponse({
@@ -276,11 +281,11 @@ def get_current_or_next_chat_for_user(user_uuid):
 def generate_opentok_session():
     optok = Opentok.objects.filter(mode='development').first()
     opentok = OpenTok(optok.api_key, optok.api_secret)
-    session = opentok.create_session()
+    session = opentok.create_session(media_mode=MediaModes.routed, archive_mode=ArchiveModes.always)
     return session.session_id
 
 
-def get_opentok_details(opentok_session_id):
+def get_opentok_details(opentok_session_id, chat_time):
     optok = Opentok.objects.filter(mode='development').first()
     opentok = OpenTok(optok.api_key, optok.api_secret)
     token = opentok.generate_token(opentok_session_id)

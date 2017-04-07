@@ -28,6 +28,8 @@ class Users(models.Model):
     email = models.CharField(null=True, max_length=255)
     gender = models.CharField(null=True, max_length=255)
     fb_profile_data = JSONField(default={})
+    fcm_token = models.CharField(max_length=255, null=True)
+    app_id = models.CharField(max_length=255, null=True)
 
 
 
