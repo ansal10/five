@@ -54,7 +54,10 @@ Response Success
 	"chat": {
             "seconds_left_for_chat_start": "12",
             "chat_start_time": "iso8601",
-            "chat_end_time": "iso8601"
+            "chat_end_time": "iso8601",
+            "user":{
+                "gender": "male"/"female"
+            }
             "session":{          // session_data will only be present when time left to call is less than 5 seconds
                 "token": "w1",
                 "sessionId": "1212",

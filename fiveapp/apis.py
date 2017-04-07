@@ -95,13 +95,17 @@ def next_chat(request):
         if chat is None:
             return JsonResponse({"chat": None})
 
+        other_user = chat.userA if chat.userA.user_uuid != user_uuid else chat.userB
         time_diff = abs(chat.chat_time - now())
         time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds if not on_going_chat else 0
         res_data = {
             "chat": {
                 "seconds_left_for_chat_start": time_diff,
                 "chat_start_time": chat.chat_time,
-                "chat_end_time": chat.chat_time + timedelta(0, SECONDS)
+                "chat_end_time": chat.chat_time + timedelta(0, SECONDS),
+                "user":{
+                    "gender": other_user.gender
+                }
             }
         }
         if time_diff <= 5:
@@ -156,6 +160,7 @@ def get_session(request):
     except Exception as e:
         logger.exception(e.message)
         return error_response("Server Error", 500)
+
 
 
 @api_view(['POST'])
@@ -216,13 +221,6 @@ def get_filters(request):
 
 
 
-
-
-
-
-
-
-
 @api_view(['POST'])
 def update_chats(request):
     data = json.loads(request.body)
@@ -252,6 +250,9 @@ def update_chats(request):
     chat = Chats(userB=userB, userA=userA, chat_time=chat_time)
     chat.save()
     return JsonResponse({"status": "created"})
+
+
+
 
 
 

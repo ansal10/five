@@ -81,14 +81,17 @@ class UserTests(TestCase):
     @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
     @mock.patch('fiveapp.apis.generate_opentok_session', side_effect=simple_generate_session)
     def test_chat_time_for_user_with_scheduled_chat(self, x, y):
-        user = Users()
+        user = Users(gender='male')
+        other_user = Users(gender='female')
+        other_user.save()
         user.save()
         data = {"user_uuid": user.user_uuid}
-        Chats(userA=user, userB=user, chat_time=now()).save()
+        Chats(userA=user, userB=other_user, chat_time=now()).save()
         response = self.client.post('/fiveapp/next_chat',
                                     content_type="application/json", **self.auth_headers(user.user_uuid, ''))
         assert response.status_code == 200
         res_data = json.loads(response.content)
+        self.assertEqual(res_data['chat']['user']['gender'], 'female')
         self.assertIn( 'seconds_left_for_chat_start',  res_data['chat'] )
         self.assertIn('token', res_data['chat']['session_data'])
 
@@ -200,7 +203,7 @@ class RatingTests(TestCase):
 
     def test_rating_first_time(self):
         data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True}}
-        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json', **auth_headers(self.userA.user_uuid))
+        res = self.client.post('/fiveapp/ratings', json.dumps(data), content_type='application/json', **auth_headers(self.userA.user_uuid))
         self.assertEqual(res.status_code, 200)
         self.userB.refresh_from_db()
         self.assertIn('total_rating_counts', self.userB.avg_rating)
@@ -212,7 +215,7 @@ class RatingTests(TestCase):
         self.chat.rating_by_userA = {'looks':1, 'total_rating_counts':2}
         self.chat.save()
         data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True}}
-        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
+        res = self.client.post('/fiveapp/ratings', json.dumps(data), content_type='application/json',
                                **auth_headers(self.userA.user_uuid))
         self.assertEqual(res.status_code, 400)
         d = json.loads(res.content)
@@ -220,9 +223,9 @@ class RatingTests(TestCase):
 
     def test_both_way_rating(self):
         data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True}}
-        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
+        res = self.client.post('/fiveapp/ratings', json.dumps(data), content_type='application/json',
                                **auth_headers(self.userA.user_uuid))
-        res = self.client.post('/fiveapp/rating', json.dumps(data), content_type='application/json',
+        res = self.client.post('/fiveapp/ratings', json.dumps(data), content_type='application/json',
                                **auth_headers(self.userB.user_uuid))
 
         self.assertEqual(res.status_code, 200)
