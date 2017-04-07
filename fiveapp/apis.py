@@ -285,7 +285,7 @@ def generate_opentok_session():
     return session.session_id
 
 
-def get_opentok_details(opentok_session_id, chat_time):
+def get_opentok_details(opentok_session_id, chat_time=0):
     optok = Opentok.objects.filter(mode='development').first()
     opentok = OpenTok(optok.api_key, optok.api_secret)
     token = opentok.generate_token(opentok_session_id)
