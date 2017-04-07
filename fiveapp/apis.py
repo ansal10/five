@@ -47,7 +47,7 @@ def user(request):
             new_user = True
         user = update_user_fb_profile_data(user) if not user.fb_profile_data else user
 
-        #set conditional data
+        # set conditional data
         user.fb_data = fb_data if fb_data else user.fb_data
         user.fcm_token = fcm_token if fcm_token else user.fcm_token
         user.app_id = app_id if app_id else user.app_id
@@ -57,13 +57,12 @@ def user(request):
         json_res = JsonResponse({
             "new_signup": new_user,
             "user_uuid": user.user_uuid,
-            "gender":user.gender
+            "gender": user.gender
         })
         return json_res
     except Exception as e:
         logger.exception(e.message)
         return error_response("Server Error", 500)
-
 
 
 @api_view(['POST'])
@@ -97,7 +96,7 @@ def next_chat(request):
 
         chat, on_going_chat = get_current_or_next_chat_for_user(user_uuid)
 
-        if chat is None or not chat.rating_by_userA  or not chat.rating_by_userB :
+        if chat is None or chat.rating_by_userA or chat.rating_by_userB:
             return JsonResponse({"chat": None})
 
         other_user = chat.userA if chat.userA.user_uuid != user_uuid else chat.userB
@@ -108,7 +107,7 @@ def next_chat(request):
                 "seconds_left_for_chat_start": time_diff,
                 "chat_start_time": chat.chat_time,
                 "chat_end_time": chat.chat_time + timedelta(0, SECONDS),
-                "user":{
+                "user": {
                     "gender": other_user.gender
                 }
             }
@@ -167,7 +166,6 @@ def get_session(request):
         return error_response("Server Error", 500)
 
 
-
 @api_view(['POST'])
 def update_ratings(request):
     try:
@@ -206,6 +204,7 @@ def update_ratings(request):
         logger.exception(e.message)
         return error_response("Server Error", 500)
 
+
 @api_view(['GET'])
 def get_filters(request):
     try:
@@ -225,7 +224,6 @@ def get_filters(request):
         return error_response("Server Error", 500)
 
 
-
 @api_view(['POST'])
 def update_chats(request):
     data = json.loads(request.body)
@@ -235,7 +233,7 @@ def update_chats(request):
     chat_id = data.get('chat_id', None)
     if chat_id:
         Chats.objects.filter(id=chat_id).delete()
-        return JsonResponse({"status":"deleted"})
+        return JsonResponse({"status": "deleted"})
 
     if data['usera_uuid'] == data['userb_uuid']:
         return error_response("Cannot schedule call between same users")
@@ -255,10 +253,6 @@ def update_chats(request):
     chat = Chats(userB=userB, userA=userA, chat_time=chat_time)
     chat.save()
     return JsonResponse({"status": "created"})
-
-
-
-
 
 
 def get_current_or_next_chat_for_user(user_uuid):
