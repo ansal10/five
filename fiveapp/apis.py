@@ -34,7 +34,7 @@ def user(request):
 
         firebase_user_id = data['firebase_user_id']
         facebook_id = data.get('facebook_id', None)
-        fb_data = data['fb_data']
+        fb_data = data.get('fb_data', None)
         fcm_token = data.get('fcm_token', None)
         app_id = data.get('app_id', None)
 
