@@ -7,7 +7,7 @@ http://ec2-54-69-125-204.us-west-2.compute.amazonaws.com:8000/fiveapp
 Request Body
 {
 	"facebook_id":"121",
-	"firebase_user_id":"121",
+	"firebase_user_id":"121 ",   // only required fields
 	"fb_data":{...},
 	"fcm_token": "",  // optional
 	"app_id":"" // optional,
@@ -17,7 +17,7 @@ Response Success
 {
 	"new_signup": true or false,
     "user_uuid": "users id",
-    "filters": {......} or None       
+    "filters": {......} or None
 }
 
 Error Response

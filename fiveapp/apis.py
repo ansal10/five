@@ -28,9 +28,9 @@ def user(request):
     try:
         data = json.loads(request.body)
         # username, password = utils.retrieve_username_password_from_authorization(request)
-        for key in ['firebase_user_id', 'fb_data']:
+        for key in ['firebase_user_id']:
             if key not in data or data[key] == None:
-                return error_response("%s Key is not empty" % key)
+                return error_response("%s Key is empty" % key)
 
         firebase_user_id = data['firebase_user_id']
         facebook_id = data.get('facebook_id', None)
