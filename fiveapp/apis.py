@@ -57,7 +57,8 @@ def user(request):
         json_res = JsonResponse({
             "new_signup": new_user,
             "user_uuid": user.user_uuid,
-            "gender": user.gender
+            "gender": user.gender,
+            "filters": user.filters if user.filters else None
         })
         return json_res
     except Exception as e:

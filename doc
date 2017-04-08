@@ -10,13 +10,14 @@ Request Body
 	"firebase_user_id":"121",
 	"fb_data":{...},
 	"fcm_token": "",  // optional
-	"app_id":"" // optional
+	"app_id":"" // optional,
 }
 
 Response Success
 {
 	"new_signup": true or false,
-    "user_uuid": "users id"
+    "user_uuid": "users id",
+    "filters": {......} or None       
 }
 
 Error Response

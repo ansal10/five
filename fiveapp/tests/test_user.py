@@ -49,6 +49,8 @@ class UserTests(TestCase):
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
         assert response.status_code == 200
         assert Users.objects.all().count() == 1
+        res = json.loads(response.content)
+        self.assertIn('filters' , res)
 
     @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
     def test_to_check_creation_of_user_without_firebase_user_id(self, x):
@@ -63,10 +65,15 @@ class UserTests(TestCase):
         data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'}}
         response = self.client.post('/fiveapp/user', json.dumps(data),
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
+        user = Users.objects.first()
+        user.filters = {'age':22}
+        user.save()
         response = self.client.post('/fiveapp/user', json.dumps(data),
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
+        res = json.loads(response.content)
         assert response.status_code == 200
         assert Users.objects.all().count() == 1
+        self.assertIn('age', res['filters'])
 
     def test_chat_time_for_existing_user(self):
         user = Users()
