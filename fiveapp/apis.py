@@ -8,6 +8,7 @@ from opentok import OpenTok, MediaModes, ArchiveModes
 from rest_framework.decorators import api_view
 
 from fiveapp import utils
+from utilities.gcm_notification import GCMNotificaiton
 from utils import now, retrieve_username_password_from_authorization
 from fiveapp.models import Users, Chats, Opentok
 from fiveapp.utils import now, update_user_fb_profile_data
@@ -253,6 +254,7 @@ def update_chats(request):
         return error_response("You cannot schedule a call, u already have a chat scheduled since past day")
     chat = Chats(userB=userB, userA=userA, chat_time=chat_time)
     chat.save()
+    GCMNotificaiton().send_chat_scheduled_notificaiton(chat.id)
     return JsonResponse({"status": "created"})
 
 
