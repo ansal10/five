@@ -39,6 +39,14 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'verbose'
         },
+        'cronfile': {
+            'level': 'INFO',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': '/tmp/fivecron.log',
+            'maxBytes': 1024*1024*50, # 50 MB
+            'backupCount': 5,
+            'formatter': 'verbose'
+        }
     },
     'loggers': {
         'django': {
@@ -47,6 +55,11 @@ LOGGING = {
         },
         'fiveapp':{
             'handlers':['file'],
+            'propogate': True,
+            'level': 'INFO'
+        },
+        'cron':{
+            'handlers':['cronfile'],
             'propogate': True,
             'level': 'INFO'
         }

@@ -26,10 +26,24 @@ class GCMNotificaiton(object):
         users = [chat.userA, chat.userB]
 
         for user in users:
-            title = "Call has scheduled"
+            title = "Your Call has been scheduled"
             next_time_diff = "{} hour and {} minutes".format((chat.chat_time - now()).days * 24,
                                                              (chat.chat_time - now()).seconds / 60)
-            message = "Hi {},\nCongratulations! We have scheduled a call in next {}". \
+            message = "Hi {}, Congratulations! We have scheduled a call in next {}". \
+                format(user.name, next_time_diff)
+            data_message = {}
+            self.send_notificaiton(user.fcm_token, title, message, data_message)
+
+        chat.notified_times += 1
+        chat.save()
+
+    def send_chat_reminder_notification(self, chat_id):
+        chat = Chats.objects.get(id=chat_id)
+        users = [chat.userA, chat.userB]
+        for user in users:
+            title = "Reminder for Your Scheduled Call in next few minutes"
+            next_time_diff = "{} seconds".format((chat.chat_time - now()).seconds )
+            message = "Hi {}, Just a reminder that your next call is scheduled in {}". \
                 format(user.name, next_time_diff)
             data_message = {}
             self.send_notificaiton(user.fcm_token, title, message, data_message)

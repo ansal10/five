@@ -48,11 +48,11 @@ class Users(models.Model):
 class Chats(models.Model):
     userA = models.ForeignKey(Users, related_name='userA', db_index=True)
     userB = models.ForeignKey(Users, related_name='userB', db_index=True)
-    chat_time = models.DateTimeField(max_length=255)
+    chat_time = models.DateTimeField(max_length=255, db_index=True)
     opentok_session_id = models.CharField(max_length=255, db_index=True, null=True)
     rating_by_userA = JSONField(default={}, null=True)
     rating_by_userB = JSONField(default={}, null=True)
-    notified_times = models.IntegerField(default=0)
+    notified_times = models.IntegerField(default=0, db_index=True)
 
     def to_json(self):
         return self
