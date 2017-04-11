@@ -11,6 +11,8 @@ DATABASES = {
 
 DEBUG = True
 
+FIREBASE_API_KEY = "AAAAapKlL5w:APA91bHp8965bkq8rFhnoZh1ESl-W-OEQPCa8Sm_8QRMfeIQNJv3WZ_OA8rMil6mdcfLzff2hj16O5EXPbsVoOALgcDxGlirNDwuKUgvbzob9jdxRUCg-wScKGkR-XrkAViIv_R71Bzl"
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -30,9 +32,9 @@ LOGGING = {
         },
         'file': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/apps/FiveServer/logs/application.log',
-            'maxBytes': 1024 * 1024 * 50,  # 50 MB
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': '/tmp/five.log',
+            'maxBytes': 1024*1024*50, # 50 MB
             'backupCount': 5,
             'formatter': 'verbose'
         },
@@ -42,8 +44,8 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': True,
         },
-        'fiveapp': {
-            'handlers': ['file'],
+        'fiveapp':{
+            'handlers':['file'],
             'propogate': True,
             'level': 'INFO'
         }

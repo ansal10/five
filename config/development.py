@@ -12,6 +12,8 @@ DATABASES = {
 
 DEBUG = True
 
+FIREBASE_API_KEY = "AAAAapKlL5w:APA91bHp8965bkq8rFhnoZh1ESl-W-OEQPCa8Sm_8QRMfeIQNJv3WZ_OA8rMil6mdcfLzff2hj16O5EXPbsVoOALgcDxGlirNDwuKUgvbzob9jdxRUCg-wScKGkR-XrkAViIv_R71Bzl"
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
