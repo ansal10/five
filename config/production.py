@@ -44,6 +44,8 @@ LOGGING = {
             'filename': '/apps/FiveServer/logs/crons.log',
             'maxBytes': 1024 * 1024 * 50,  # 50 MB
             'backupCount': 5,
+            'formatter': 'verbose'
+
         }
 
     },
