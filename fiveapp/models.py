@@ -52,7 +52,8 @@ class Chats(models.Model):
     opentok_session_id = models.CharField(max_length=255, db_index=True, null=True)
     rating_by_userA = JSONField(default={}, null=True)
     rating_by_userB = JSONField(default={}, null=True)
-    notified_times = models.IntegerField(default=0, db_index=True)
+    chat_notified_times = models.IntegerField(default=0, db_index=True)
+    rating_notified_times = models.IntegerField(default=0, db_index=True)
 
     def to_json(self):
         return self

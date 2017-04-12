@@ -33,11 +33,19 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': '/tmp/five.log',
+            'filename': '/apps/FiveServer/logs/application.log',
             'maxBytes': 1024*1024*50, # 50 MB
             'backupCount': 5,
             'formatter': 'verbose'
         },
+        'cronfile': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '/apps/FiveServer/logs/crons.log',
+            'maxBytes': 1024 * 1024 * 50,  # 50 MB
+            'backupCount': 5,
+        }
+
     },
     'loggers': {
         'django': {
@@ -46,6 +54,11 @@ LOGGING = {
         },
         'fiveapp':{
             'handlers':['file'],
+            'propogate': True,
+            'level': 'INFO'
+        },
+        'cron':{
+            'handlers':['cronfile'],
             'propogate': True,
             'level': 'INFO'
         }

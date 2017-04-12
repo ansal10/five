@@ -190,6 +190,9 @@ def update_ratings(request):
         chat.save()
 
         if not rating_existed:
+            if chat.rating_by_userA and chat.rating_by_userB:  # Notification  # send notificaiton only when both user completed
+                GCMNotificaiton().send_ratings_feedback_notification(chat.id)
+
             total_counts = other_user.avg_rating.get('total_rating_counts', 0)
             for key, val in ratings['rating_params'].items():
                 avg_val = other_user.avg_rating.get(key, 0)

@@ -8,6 +8,8 @@ from fiveapp.models import Users, Chats
 from fiveapp.utils import now
 
 logger = logging.getLogger('fiveapp')
+NOTIFICATION_TYPE = "notification_type"
+FEEDBACK_NOTIFICATION = "FEEDBACK NOTIFICATION"
 
 
 class GCMNotificaiton(object):
@@ -18,7 +20,8 @@ class GCMNotificaiton(object):
         logger.info("Sending notification to reg_id={}, title={}, body={}, data={}"
                     .format(registration_id, message_title, message_body, data_message))
         result = self.push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
-                                                        message_body=message_body, data_message=data_message)
+                                                        message_body=message_body, sound='default',
+                                                        data_message=data_message)
         logger.info("Result={}".format(result))
 
     def send_chat_scheduled_notificaiton(self, chat_id):
@@ -34,7 +37,7 @@ class GCMNotificaiton(object):
             data_message = {}
             self.send_notificaiton(user.fcm_token, title, message, data_message)
 
-        chat.notified_times += 1
+        chat.chat_notified_times += 1
         chat.save()
 
     def send_chat_reminder_notification(self, chat_id):
@@ -42,11 +45,31 @@ class GCMNotificaiton(object):
         users = [chat.userA, chat.userB]
         for user in users:
             title = "Reminder for Your Scheduled Call in next few minutes"
-            next_time_diff = "{} seconds".format((chat.chat_time - now()).seconds )
+            next_time_diff = "{} seconds".format((chat.chat_time - now()).seconds)
             message = "Hi {}, Just a reminder that your next call is scheduled in {}". \
                 format(user.name, next_time_diff)
             data_message = {}
             self.send_notificaiton(user.fcm_token, title, message, data_message)
 
-        chat.notified_times += 1
+        chat.chat_notified_times += 1
+        chat.save()
+
+    def send_ratings_feedback_notification(self, chat_id):
+        chat = Chats.objects.get(id=chat_id)
+        users = [chat.userA, chat.userB]
+
+        for user in users:
+            other_user_ratings = chat.rating_by_userA if chat.userB == user else chat.rating_by_userB
+            data_message = {
+                NOTIFICATION_TYPE: FEEDBACK_NOTIFICATION,
+                "has_shared_profile": other_user_ratings['share_profile'],
+                "message": other_user_ratings['share_message'],
+                "facebook_link": users[0].fb_link if users[1] == user else users[1].fb_link
+            }
+            title = "Feedback for your recent chat"
+            message = "Hi {}, You have received a feedback for your recent chat scheduled on {}". \
+                format(user.name, chat.chat_time.strftime("%d, %b %Y"))
+            self.send_notificaiton(user.fcm_token, title, message, data_message)
+
+        chat.rating_notified_times += 1
         chat.save()
