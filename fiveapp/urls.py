@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^ratings$', view=apis.update_ratings, name='Update Ratings'),
     url(r'^get_filters$', view=apis.get_filters, name='Retrieve Filters'),
     url(r'^update_chats$', view=apis.update_chats, name='New Chat'),
+    url(r'^notification$', view=apis.notification, name='Notification'),
     url(r'^retrieve_users_and_chats$', view=views.retrieve_users_and_chats, name='Retrive all users and chats'),
     url(r'^login$', view=views.authenticate_user, name='Login User'),
     url(r'^test$', view=apis.test, name='Test Server')

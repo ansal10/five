@@ -10,6 +10,7 @@ from fiveapp.utils import now
 logger = logging.getLogger('fiveapp')
 NOTIFICATION_TYPE = "notification_type"
 FEEDBACK_NOTIFICATION = "FEEDBACK NOTIFICATION"
+CALL_ENDED_NOTIFICATION = "CALL ENDED NOTIFICATION"
 
 
 class GCMNotificaiton(object):
@@ -73,3 +74,11 @@ class GCMNotificaiton(object):
 
         chat.rating_notified_times += 1
         chat.save()
+
+    def send_call_ended_notification(self, fcm_token):
+        data_message = {
+            NOTIFICATION_TYPE: CALL_ENDED_NOTIFICATION,
+        }
+        title="Your call has ended"
+        message = ""
+        self.send_notificaiton(fcm_token, title, message, data_message)

@@ -110,7 +110,8 @@ def next_chat(request):
                 "chat_start_time": chat.chat_time,
                 "chat_end_time": chat.chat_time + timedelta(0, SECONDS),
                 "user": {
-                    "gender": other_user.gender
+                    "gender": other_user.gender,
+                    "fcm_token":other_user.fcm_token
                 }
             }
         }
@@ -261,6 +262,26 @@ def update_chats(request):
     return JsonResponse({"status": "created"})
 
 
+@api_view(['POST'])
+def notification(request):
+    try:
+        data = json.loads(request.body)
+        user_uuid, password = utils.retrieve_username_password_from_authorization(request)
+        if not Users.objects.filter(user_uuid=user_uuid).exists():
+            return error_response("Unauthorized Access", 401)
+
+        fcm_token = data['fcm_token']
+        notification_type = data['notification_type']
+
+        if notification_type == "CALL ENDED NOTIFICATION":
+            GCMNotificaiton().send_call_ended_notification(fcm_token)
+
+        return JsonResponse({"status":"ok"})
+    except Exception as e:
+        logger.exception(e.message)
+        return error_response("Server Error", 500)
+
+
 def get_current_or_next_chat_for_user(user_uuid):
     user = Users.objects.filter(user_uuid=user_uuid).first()
     from_time = utils.now() - timedelta(0, SECONDS)
@@ -300,3 +321,5 @@ def test(request):
 
 def new_chat(request):
     return None
+
+
