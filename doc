@@ -58,6 +58,7 @@ Response Success
             "seconds_left_for_chat_start": "12",
             "chat_start_time": "iso8601",
             "chat_end_time": "iso8601",
+            "current_time": "iso8601"
             "user":{
                 "gender": "male"/"female",
                 "fcm_token": "....";

@@ -109,6 +109,7 @@ def next_chat(request):
                 "seconds_left_for_chat_start": time_diff,
                 "chat_start_time": chat.chat_time,
                 "chat_end_time": chat.chat_time + timedelta(0, SECONDS),
+                "current_time": now().isoformat(),
                 "user": {
                     "gender": other_user.gender,
                     "fcm_token":other_user.fcm_token
