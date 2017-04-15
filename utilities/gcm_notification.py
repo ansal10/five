@@ -93,9 +93,9 @@ class GCMNotificaiton(object):
         message = ""
         self.send_notificaiton(fcm_token, title, message, data_message)
 
-    def send_ringing_notification(self, user):
+    def send_ringing_notification(self, fcm_token, gender):
         data_message = {
             NOTIFICATION_TYPE: RINGING_NOTIFICATION,
-            GENDER_KEY: user.gender
+            GENDER_KEY: gender
         }
-        self.send_data_only_notification(user.fcm_token, "", "", data_message=data_message, )
+        self.send_data_only_notification(fcm_token, "", "", data_message=data_message )

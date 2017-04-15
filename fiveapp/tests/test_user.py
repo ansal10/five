@@ -133,7 +133,7 @@ class UserTests(TestCase):
 
 
     @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
-    @mock.patch('utilities.gcm_notification.GCMNotificaiton.send_notificaiton', side_effect=mock_send_notificaiton)
+    @mock.patch('utilities.gcm_notification.GCMNotificaiton.send_data_only_notification', side_effect=mock_send_notificaiton)
     def test_opentok_session_id(self, urandom_function, x2):
         user = Users()
         user.save()
@@ -148,7 +148,7 @@ class UserTests(TestCase):
 
     @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
     @mock.patch('fiveapp.apis.generate_opentok_session', side_effect=simple_generate_session)
-    @mock.patch('utilities.gcm_notification.GCMNotificaiton.send_notificaiton', side_effect=mock_send_notificaiton)
+    @mock.patch('utilities.gcm_notification.GCMNotificaiton.send_data_only_notification', side_effect=mock_send_notificaiton)
     def test_generation_of_new_opentok_session_id(self, x1, x2, x3):
         user = Users()
         user.save()
