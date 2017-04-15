@@ -99,9 +99,9 @@ class GCMNotificaiton(object):
         data_message = {
             NOTIFICATION_TYPE: RINGING_NOTIFICATION,
             GENDER_KEY: gender,
-            "chat_start_time": chat.chat_time.__str__(),
-            "chat_end_time": (chat.chat_time + timedelta(0, SECONDS)).__str__(),
-            "current_time": now().isoformat().__str__(),
+            "chat_start_time": chat.chat_time.isoformat(),
+            "chat_end_time": (chat.chat_time + timedelta(0, SECONDS)).isoformat(),
+            "current_time": now().isoformat(),
             "gender": gender,
             "fcm_token": fcm_token
         }
