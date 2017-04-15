@@ -141,6 +141,7 @@ def get_session(request):
         if not Users.objects.filter(user_uuid=user_uuid).exists():
             return error_response("Unauthorized Access", 401)
 
+        user = Users.objects.filter(user_uuid=user_uuid).first()
         chat, on_going_chat = get_current_or_next_chat_for_user(user_uuid=user_uuid)
         time_diff = abs(chat.chat_time - now())
         time_diff = (time_diff.days * 24 * 60 * 60) + time_diff.seconds
