@@ -1,6 +1,9 @@
 import logging
+from datetime import timedelta
 
 from django.db.models import Q
+
+from fiveapp.apis import SECONDS
 from pyfcm import FCMNotification
 
 from config import FIREBASE_API_KEY
@@ -93,9 +96,14 @@ class GCMNotificaiton(object):
         message = ""
         self.send_notificaiton(fcm_token, title, message, data_message)
 
-    def send_ringing_notification(self, fcm_token, gender):
+    def send_ringing_notification(self, fcm_token, gender, chat):
         data_message = {
             NOTIFICATION_TYPE: RINGING_NOTIFICATION,
-            GENDER_KEY: gender
+            GENDER_KEY: gender,
+            "chat_start_time": chat.chat_time,
+            "chat_end_time": chat.chat_time + timedelta(0, SECONDS),
+            "current_time": now().isoformat(),
+            "gender": gender,
+            "fcm_token": fcm_token
         }
         self.send_data_only_notification(fcm_token, "", "", data_message=data_message )

@@ -166,7 +166,7 @@ def get_session(request):
         }
 
         other_user = chat.userB if chat.userA == user else chat.userA
-        GCMNotificaiton().send_ringing_notification(other_user.fcm_token, user.gender)
+        GCMNotificaiton().send_ringing_notification(other_user.fcm_token, user.gender, chat)
 
         return JsonResponse({"session": data})
     except Exception as e:
