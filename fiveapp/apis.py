@@ -164,6 +164,9 @@ def get_session(request):
             "apiKey": api_key
         }
 
+        other_user = chat.userB if chat.userA == user else chat.userA
+        GCMNotificaiton().send_ringing_notification(other_user)
+
         return JsonResponse({"session": data})
     except Exception as e:
         logger.exception(e.message)

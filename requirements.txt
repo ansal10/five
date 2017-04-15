@@ -14,7 +14,6 @@ opentok==2.4.1
 packaging==16.8
 pbr==2.0.0
 psycopg2==2.7.1
-pyfcm==1.2.9
 pyparsing==2.2.0
 pytz==2017.2
 requests==2.13.0

@@ -28,6 +28,9 @@ def auth_headers( username, password=''):
     header = {'HTTP_AUTHORIZATION': auth_string}
     return header
 
+def mock_send_notificaiton(registration_id, message_title, message_body, data_message=None):
+    pass
+
 class UserTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -130,7 +133,8 @@ class UserTests(TestCase):
 
 
     @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
-    def test_opentok_session_id(self, urandom_function):
+    @mock.patch('utilities.gcm_notification.GCMNotificaiton.send_notificaiton', side_effect=mock_send_notificaiton)
+    def test_opentok_session_id(self, urandom_function, x2):
         user = Users()
         user.save()
         data = {"user_uuid": user.user_uuid}
@@ -144,7 +148,8 @@ class UserTests(TestCase):
 
     @mock.patch('fiveapp.apis.get_opentok_details', side_effect=get_opentok_details)
     @mock.patch('fiveapp.apis.generate_opentok_session', side_effect=simple_generate_session)
-    def test_generation_of_new_opentok_session_id(self, x1, x2):
+    @mock.patch('utilities.gcm_notification.GCMNotificaiton.send_notificaiton', side_effect=mock_send_notificaiton)
+    def test_generation_of_new_opentok_session_id(self, x1, x2, x3):
         user = Users()
         user.save()
         data = {"user_uuid": user.user_uuid}
@@ -228,8 +233,10 @@ class RatingTests(TestCase):
         d = json.loads(res.content)
         self.assertIn('error', d)
 
-    def test_both_way_rating(self):
-        data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True}}
+
+    @mock.patch('utilities.gcm_notification.GCMNotificaiton.send_notificaiton', side_effect=mock_send_notificaiton)
+    def test_both_way_rating(self, x):
+        data = {'opentok_session_id':'111', 'ratings':{'rating_params':{'looks':5, 'feels':3}, 'feedback':'this is new', 'share_profile':True, 'share_message':'This is shared messsage'}}
         res = self.client.post('/fiveapp/ratings', json.dumps(data), content_type='application/json',
                                **auth_headers(self.userA.user_uuid))
         res = self.client.post('/fiveapp/ratings', json.dumps(data), content_type='application/json',

@@ -11,6 +11,8 @@ logger = logging.getLogger('fiveapp')
 NOTIFICATION_TYPE = "notification_type"
 FEEDBACK_NOTIFICATION = "FEEDBACK NOTIFICATION"
 CALL_ENDED_NOTIFICATION = "CALL ENDED NOTIFICATION"
+RINGING_NOTIFICATION = "RINGING NOTIFICATION"
+GENDER_KEY = "gender"
 
 
 class GCMNotificaiton(object):
@@ -23,6 +25,14 @@ class GCMNotificaiton(object):
         result = self.push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
                                                         message_body=message_body, sound='default',
                                                         data_message=data_message)
+        logger.info("Result={}".format(result))
+
+    def send_data_only_notification(self, registration_id, message_title, message_body, data_message=None):
+        logger.info("Sending data only notification to reg_id={}, title={}, body={}, data={}"
+                    .format(registration_id, message_title, message_body, data_message))
+        result = self.push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
+                                                        message_body=message_body, sound='default',
+                                                        data_message=data_message, data_only=True)
         logger.info("Result={}".format(result))
 
     def send_chat_scheduled_notificaiton(self, chat_id):
@@ -70,7 +80,7 @@ class GCMNotificaiton(object):
             title = "Feedback for your recent chat"
             message = "Hi {}, You have received a feedback for your recent chat scheduled on {}". \
                 format(user.name, chat.chat_time.strftime("%d, %b %Y"))
-            self.send_notificaiton(user.fcm_token, title, message, data_message)
+            self.send_notificaiton(user.fcm_token, title, message, data_message=data_message)
 
         chat.rating_notified_times += 1
         chat.save()
@@ -82,3 +92,10 @@ class GCMNotificaiton(object):
         title="Your call has ended"
         message = ""
         self.send_notificaiton(fcm_token, title, message, data_message)
+
+    def send_ringing_notification(self, user):
+        data_message = {
+            NOTIFICATION_TYPE: RINGING_NOTIFICATION,
+            GENDER_KEY: user.gender
+        }
+        self.send_data_only_notification(user.fcm_token, "", "", data_message=data_message, )
