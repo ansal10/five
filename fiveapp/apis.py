@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from opentok import OpenTok, MediaModes, ArchiveModes
 from rest_framework.decorators import api_view
 
+from config import SECONDS
 from fiveapp import utils
 from utilities.gcm_notification import GCMNotificaiton
 from utils import now, retrieve_username_password_from_authorization
@@ -20,7 +21,6 @@ def error_response(msg, status=400):
     return JsonResponse({"error": msg}, status=status)
 
 
-SECONDS = 300
 TOTAL_RATING_COUNT = 'total_rating_counts'
 
 

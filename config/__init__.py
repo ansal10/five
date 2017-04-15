@@ -10,3 +10,6 @@ elif env == 'test' or env == 'testing':
     from test import *
 else:
     from development import *
+
+
+SECONDS = 300

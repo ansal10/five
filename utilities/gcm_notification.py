@@ -3,10 +3,9 @@ from datetime import timedelta
 
 from django.db.models import Q
 
-from fiveapp.apis import SECONDS
 from pyfcm import FCMNotification
 
-from config import FIREBASE_API_KEY
+from config import FIREBASE_API_KEY, SECONDS
 from fiveapp.models import Users, Chats
 from fiveapp.utils import now
 
