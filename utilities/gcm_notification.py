@@ -15,17 +15,21 @@ FEEDBACK_NOTIFICATION = "FEEDBACK NOTIFICATION"
 CALL_ENDED_NOTIFICATION = "CALL ENDED NOTIFICATION"
 RINGING_NOTIFICATION = "RINGING NOTIFICATION"
 GENDER_KEY = "gender"
-
+ACTIVITY_RATINGS = 'ACTIVITY_RATINGS'
+ACTIVITY_CALL_STATUS = 'ACTIVITY_CALL_STATUS'
+ACTIVITY_FILTERS = 'ACTIVITY_FILTERS'
+ACTIVITY_CALL = 'ACTIVITY_CALL'
+ACTIVITY_NOTIFICATION = 'ACTIVITY_NOTIFICATION'
 
 class GCMNotificaiton(object):
     def __init__(self):
         self.push_service = FCMNotification(api_key=FIREBASE_API_KEY)
 
-    def send_notificaiton(self, registration_id, message_title, message_body, data_message=None):
+    def send_notificaiton(self, registration_id, message_title, message_body, data_message=None, click_action=ACTIVITY_CALL_STATUS):
         logger.info("Sending notification to reg_id={}, title={}, body={}, data={}"
                     .format(registration_id, message_title, message_body, data_message))
         result = self.push_service.notify_single_device(registration_id=registration_id, message_title=message_title,
-                                                        message_body=message_body, sound='default',
+                                                        message_body=message_body, sound='default', click_action=click_action,
                                                         data_message=data_message)
         logger.info("Result={}".format(result))
 
@@ -82,7 +86,7 @@ class GCMNotificaiton(object):
             title = "Feedback for your recent chat"
             message = "Hi {}, You have received a feedback for your recent chat scheduled on {}". \
                 format(user.name, chat.chat_time.strftime("%d, %b %Y"))
-            self.send_notificaiton(user.fcm_token, title, message, data_message=data_message)
+            self.send_notificaiton(user.fcm_token, title, message, data_message=data_message, click_action=ACTIVITY_NOTIFICATION)
 
         chat.rating_notified_times += 1
         chat.save()
