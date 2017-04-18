@@ -28,7 +28,7 @@ def auth_headers( username, password=''):
     header = {'HTTP_AUTHORIZATION': auth_string}
     return header
 
-def mock_send_notificaiton(registration_id, message_title, message_body, data_message=None):
+def mock_send_notificaiton(registration_id, message_title, message_body, data_message=None, click_action=None):
     pass
 
 class UserTests(TestCase):
@@ -47,7 +47,7 @@ class UserTests(TestCase):
 
     @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
     def test_to_check_creation_of_user(self, x):
-        data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'}}
+        data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'}, 'build_version':1.5}
         response = self.client.post('/fiveapp/user', json.dumps(data),
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
         assert response.status_code == 200
@@ -57,7 +57,7 @@ class UserTests(TestCase):
 
     @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
     def test_to_check_creation_of_user_without_firebase_user_id(self, x):
-        data = {'facebook_id': '11', 'fb_data': {'name': 'xyz', 'age': '22'}}
+        data = {'facebook_id': '11', 'fb_data': {'name': 'xyz', 'age': '22'}, 'build_version':1.5}
         response = self.client.post('/fiveapp/user',
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
         assert response.status_code == 400
@@ -65,7 +65,7 @@ class UserTests(TestCase):
 
     @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
     def test_to_check_re_post_of_user(self, x):
-        data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'}}
+        data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'}, 'build_version':1.5}
         response = self.client.post('/fiveapp/user', json.dumps(data),
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
         user = Users.objects.first()
@@ -77,6 +77,25 @@ class UserTests(TestCase):
         assert response.status_code == 200
         assert Users.objects.all().count() == 1
         self.assertIn('age', res['filters'])
+        self.assertFalse(res['force_update'])
+
+    @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
+    def test_to_check_force_update(self, x):
+        data = {'facebook_id': '11', 'firebase_user_id': '22', 'fb_data': {'name': 'xyz', 'age': '22'},
+                'build_version': 1.1}
+        response = self.client.post('/fiveapp/user', json.dumps(data),
+                                    content_type="application/json", **self.auth_headers('XX', 'YY'))
+        user = Users.objects.first()
+        user.filters = {'age': 22}
+        user.save()
+        response = self.client.post('/fiveapp/user', json.dumps(data),
+                                    content_type="application/json", **self.auth_headers('XX', 'YY'))
+        res = json.loads(response.content)
+        assert response.status_code == 200
+        assert Users.objects.all().count() == 1
+        self.assertIn('age', res['filters'])
+        self.assertTrue(res['force_update'])
+
 
     def test_chat_time_for_existing_user(self):
         user = Users()

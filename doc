@@ -11,6 +11,7 @@ Request Body
 	"fb_data":{...},
 	"fcm_token": "",  // optional
 	"app_id":"" // optional,
+	"build_version":1.2 // Always Required
 }
 
 Response Success
@@ -18,6 +19,7 @@ Response Success
 	"new_signup": true or false,
     "user_uuid": "users id",
     "filters": {......} or None
+    "force_update": True/False
 }
 
 Error Response

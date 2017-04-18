@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from opentok import OpenTok, MediaModes, ArchiveModes
 from rest_framework.decorators import api_view
 
-from config import SECONDS
+from config import SECONDS, MIN_BUILD_VERSION_FOR_FORCE_UPDATE
 from fiveapp import utils
 from utilities.gcm_notification import GCMNotificaiton
 from utils import now, retrieve_username_password_from_authorization
@@ -29,15 +29,18 @@ def user(request):
     try:
         data = json.loads(request.body)
         # username, password = utils.retrieve_username_password_from_authorization(request)
-        for key in ['firebase_user_id']:
+        for key in ['firebase_user_id', 'build_version']:
             if key not in data or data[key] == None:
                 return error_response("%s Key is empty" % key)
 
         firebase_user_id = data['firebase_user_id']
+        build_version = float(data['build_version'])
         facebook_id = data.get('facebook_id', None)
         fb_data = data.get('fb_data', None)
         fcm_token = data.get('fcm_token', None)
         app_id = data.get('app_id', None)
+
+        force_update = True if build_version < MIN_BUILD_VERSION_FOR_FORCE_UPDATE else False
 
         new_user = False
         users = Users.objects.filter(firebase_user_id=firebase_user_id, facebook_id=facebook_id)
@@ -59,7 +62,8 @@ def user(request):
             "new_signup": new_user,
             "user_uuid": user.user_uuid,
             "gender": user.gender,
-            "filters": user.filters if user.filters else None
+            "filters": user.filters if user.filters else None,
+            "force_update": force_update
         })
         return json_res
     except Exception as e:
