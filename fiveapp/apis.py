@@ -28,13 +28,17 @@ TOTAL_RATING_COUNT = 'total_rating_counts'
 def user(request):
     try:
         data = json.loads(request.body)
-        # username, password = utils.retrieve_username_password_from_authorization(request)
+        build_version = float(data['build_version'])
+
+        if data.get('firebase_user_id', None) is None:
+            return JsonResponse({
+                "force_update": True if build_version < MIN_BUILD_VERSION_FOR_FORCE_UPDATE else False
+            })
         for key in ['firebase_user_id', 'build_version']:
             if key not in data or data[key] == None:
                 return error_response("%s Key is empty" % key)
 
         firebase_user_id = data['firebase_user_id']
-        build_version = float(data['build_version'])
         facebook_id = data.get('facebook_id', None)
         fb_data = data.get('fb_data', None)
         fcm_token = data.get('fcm_token', None)
