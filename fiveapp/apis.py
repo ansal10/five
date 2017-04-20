@@ -43,6 +43,7 @@ def user(request):
         fb_data = data.get('fb_data', None)
         fcm_token = data.get('fcm_token', None)
         app_id = data.get('app_id', None)
+        timezone = data.get('timezone', None)
 
         force_update = True if build_version < MIN_BUILD_VERSION_FOR_FORCE_UPDATE else False
 
@@ -59,6 +60,7 @@ def user(request):
         user.fb_data = fb_data if fb_data else user.fb_data
         user.fcm_token = fcm_token if fcm_token else user.fcm_token
         user.app_id = app_id if app_id else user.app_id
+        user.timezone = timezone if timezone else user.timezone
 
         user.save()
 
