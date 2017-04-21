@@ -29,7 +29,7 @@ class Users(models.Model):
     fb_profile_data = JSONField(default={})
     fcm_token = models.CharField(max_length=255, null=True)
     app_id = models.CharField(max_length=255, null=True)
-    timezone = models.CharField(max_length=15, null=True)
+    timezone = models.CharField(max_length=255, null=True)
 
 
 

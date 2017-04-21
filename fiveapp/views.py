@@ -35,7 +35,7 @@ def retrieve_users_and_chats(request):
     if username != Opentok.get_api_key():
         return error_response('Unauthorized Access', 401)
 
-    users = Users.objects.values('user_uuid', 'fb_link', 'fb_profile_data', 'name', 'email').all()
+    users = Users.objects.values('user_uuid', 'fb_link', 'fb_profile_data', 'name', 'email', 'filters', 'timezone').all()
     chats = Chats.objects.values('id', 'userA__user_uuid', 'userB__user_uuid', 'chat_time', 'userA__name', 'userA__email', 'userB__name', 'userB__name').all()
     for chat in chats:
         chat['chat_time'] = chat['chat_time'].__str__()

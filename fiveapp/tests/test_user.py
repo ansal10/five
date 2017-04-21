@@ -58,9 +58,11 @@ class UserTests(TestCase):
     @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)
     def test_to_check_creation_of_user_without_firebase_user_id(self, x):
         data = {'facebook_id': '11', 'fb_data': {'name': 'xyz', 'age': '22'}, 'build_version':1.5}
-        response = self.client.post('/fiveapp/user',
+        response = self.client.post('/fiveapp/user', json.dumps(data),
                                     content_type="application/json", **self.auth_headers('XX', 'YY'))
-        assert response.status_code == 400
+        res = json.loads(response.content)
+        self.assertEqual(res['force_update'], False)
+        assert response.status_code == 200
         assert Users.objects.all().count() == 0
 
     @mock.patch('fiveapp.apis.update_user_fb_profile_data', side_effect=mock_update_user_fb_profile_data)

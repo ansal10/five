@@ -10,9 +10,9 @@ from rest_framework.decorators import api_view
 from config import SECONDS, MIN_BUILD_VERSION_FOR_FORCE_UPDATE
 from fiveapp import utils
 from utilities.gcm_notification import GCMNotificaiton
-from utils import now, retrieve_username_password_from_authorization
+from utils import now, retrieve_username_password_from_authorization, check_call_schedule_compatiblity
 from fiveapp.models import Users, Chats, Opentok
-from fiveapp.utils import now, update_user_fb_profile_data
+from fiveapp.utils import now, update_user_fb_profile_data, convert_timezone
 
 logger = logging.getLogger('fiveapp')
 
@@ -122,7 +122,7 @@ def next_chat(request):
                 "current_time": now().isoformat(),
                 "user": {
                     "gender": other_user.gender,
-                    "fcm_token":other_user.fcm_token
+                    "fcm_token": other_user.fcm_token
                 }
             }
         }
@@ -264,6 +264,10 @@ def update_chats(request):
     next_seconds = int(data['next_seconds'])
     chat_time = now() + timedelta(0, next_seconds)
 
+    call_possible = check_call_schedule_compatiblity(userA, userB, chat_time)
+    if call_possible is False:
+        return error_response("Chat schedule not possible, check times")
+
     q1 = Q(userA=userA) & Q(userB=userB)
     q2 = Q(userA=userB) & Q(userB=userA)
     from_time = now() - timedelta(1, 0)
@@ -291,7 +295,7 @@ def notification(request):
         if notification_type == "CALL ENDED NOTIFICATION":
             GCMNotificaiton().send_call_ended_notification(fcm_token)
 
-        return JsonResponse({"status":"ok"})
+        return JsonResponse({"status": "ok"})
     except Exception as e:
         logger.exception(e.message)
         return error_response("Server Error", 500)
@@ -333,8 +337,5 @@ def get_opentok_details(opentok_session_id, chat_time=0):
 def test(request):
     return JsonResponse({"author": "Anas MD"})
 
-
-def new_chat(request):
-    return None
 
 

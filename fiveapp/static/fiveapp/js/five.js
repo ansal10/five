@@ -4,14 +4,14 @@
 
 var app = angular.module('fiveApp', []);
 
-app.controller('ChatPanelIndexCtrl', function ($scope, $http) {
+app.controller('ChatPanelIndexCtrl', function ($scope, $http, $interval) {
     var config = {
         headers:  {
             'Authorization': 'Basic YW5zYWwxMDphbnNhbDEw',
             'Content-Type': 'application/json'
         }
     };
-    $scope.chat_in_seconds = 0;
+    $scope.chatInSeconds = 0;
 
 
     $scope.refresh_data = function () {
@@ -29,6 +29,7 @@ app.controller('ChatPanelIndexCtrl', function ($scope, $http) {
             $scope.chats_dict[chat.id] = chat;
         }
         $scope.chats_visible = $scope.data.chats.slice(0);
+        $scope.available_users = $scope.data.users.slice(0);
         $scope.updateChatsAvailableList()
 
 
@@ -41,14 +42,73 @@ app.controller('ChatPanelIndexCtrl', function ($scope, $http) {
     $scope.refresh_data();
 
     $scope.userSelected = function (user_num, user_uuid) {
-        if(user_num === 'userA'){
+        if(user_num == 'userA'){
             $scope.userA = $scope.users_dict[user_uuid];
+            $scope.userA.daysAvail = $scope.daysAvailable($scope.userA.filters);
         }else{
             $scope.userB = $scope.users_dict[user_uuid];
+            $scope.userB.daysAvail = $scope.daysAvailable($scope.userB.filters);
         }
+        $scope.checkCallFeasablity();
         $scope.updateChatsAvailableList();
+        $scope.updateUsersAvailableList();
 
         // $scope.$apply();
+    };
+
+    $scope.updateUsersAvailableList = function () {
+        function usersDaysCoincide(userA, user) {
+            var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            for(var i = 0 ; i < days.length ; i++){
+                if(userA.filters[days[i]]==true && user.filters[days[i]]==true){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if($scope.userA != null){
+            $scope.available_users = [];
+            for(var i = 0 ; i < $scope.data.users.length; i++){
+                if (usersDaysCoincide($scope.userA, $scope.data.users[i])){
+                    $scope.available_users.push($scope.data.users[i]);
+                }
+            }
+        }
+    };
+    $scope.checkCallFeasablity = function () {
+        if($scope.userA!=null && $scope.userB != null){
+            if($scope.chatInSeconds == null)
+                $scope.chatInSeconds = 0;
+
+            var userAMoment = moment().add($scope.chatInSeconds, 'seconds').tz($scope.userA.timezone);
+            var userBMoment = moment().add($scope.chatInSeconds, 'seconds').tz($scope.userB.timezone);
+
+            var userADay = userAMoment.format('dddd').toLowerCase();
+            var userBDay = userBMoment.format('dddd').toLowerCase();
+
+            var userAHour = userAMoment.format('HH:mm');
+            var userBHour = userBMoment.format('HH:mm');
+
+            if(
+                ($scope.userA.filters[userADay] == true && userAHour >= $scope.userA.filters['minTime'] &&  userAHour < $scope.userA.filters['maxTime'] ) &&
+                ($scope.userB.filters[userBDay] == true && userAHour >= $scope.userB.filters['minTime'] &&  userAHour < $scope.userB.filters['maxTime'] )
+            ){
+                $scope.schedulePossible = true;
+            }else{
+                $scope.schedulePossible = false;
+            }
+        }
+    };
+
+    $scope.daysAvailable = function (filters) {
+      var b = [];
+      var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      for(var i = 0 ; i < days.length ; i++){
+          if(filters[days[i]]===true)
+              b.push(days[i])
+      }
+      return b.join(" ");
     };
 
     $scope.updateChatsAvailableList = function () {
@@ -78,7 +138,8 @@ app.controller('ChatPanelIndexCtrl', function ($scope, $http) {
         return $scope.users_dict[user_uuid].user_uuid;
     };
 
-    $scope.newChat = function (next_seconds) {
+    $scope.newChat = function () {
+        var next_seconds = $scope.chatInSeconds;
         var userA = $scope.userA;
         var userB = $scope.userB;
         if (!userA || !userB ){
@@ -114,14 +175,39 @@ app.controller('ChatPanelIndexCtrl', function ($scope, $http) {
             })
     };
 
+    $scope.$watch('chatInSecondsExpression', function () {
+        $scope.chatInSeconds = eval($scope.chatInSecondsExpression)
+    });
+
+    $scope.$watch('chatInSeconds', function () {
+       $scope.checkCallFeasablity();
+    });
+
     $scope.$watch('apikey', function () {
        config = {
-        headers:  {
-            'Authorization': 'Basic '+$scope.apikey,
-            'Content-Type': 'application/json'
+            headers:  {
+                'Authorization': 'Basic '+$scope.apikey,
+                'Content-Type': 'application/json'
+            }
+        }
+    });
+
+
+
+    $scope.setDisplayTime = function () {
+        if($scope.userA!= null){
+            var timezone = $scope.userA.timezone;
+            $scope.userA.displayTime = moment().tz(timezone).format('dddd HH:mm:ss')
+        }
+        if($scope.userB!=null){
+            var timezone = $scope.userA.timezone;
+            $scope.userB.displayTime = moment().tz(timezone).format('dddd HH:mm:ss')
         }
     }
-    })
+
+
+    $interval($scope.setDisplayTime, 1000);
+
 
 } );
 

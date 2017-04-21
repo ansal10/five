@@ -37,6 +37,32 @@ def update_user_fb_profile_data(user):
     return user
 
 
+# convert time in from_timezone to to_timezone
+def convert_timezone(timestamp, from_timezone, to_timezone=None):
+  from_tz = pytz.timezone(from_timezone)
+  to_tz = pytz.timezone(to_timezone) if to_timezone else pytz.UTC
+  x = from_tz.normalize(timestamp).astimezone(to_tz)
+  return x
+
+
+def check_call_schedule_compatiblity(userA, userB, chat_time):
+    chat_time_usera_timezone = convert_timezone(chat_time, 'UTC', userA.timezone)
+    chat_time_userb_timezone = convert_timezone(chat_time, 'UTC', userB.timezone)
+
+    chat_day = chat_time.strftime("%A").lower()  # monday/friday.....
+    usera_day = chat_time_usera_timezone.strftime("%A").lower()
+    userb_day = chat_time_userb_timezone.strftime("%A").lower()
+    usera_time = chat_time_usera_timezone.strftime("%H:%M")
+    userb_time = chat_time_userb_timezone.strftime("%H:%M")
+
+    if userA.filters.get(usera_day,False) and userB.filters.get(userb_day,False) and \
+                            userA.filters['minTime'] <= usera_time < userA.filters['maxTime'] and \
+                            userB.filters['minTime'] <= userb_time < userB.filters['maxTime']:
+        return True
+    else:
+        return False
+
+
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):

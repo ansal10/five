@@ -47,8 +47,8 @@ class GCMNotificaiton(object):
 
         for user in users:
             title = "Your Call has been scheduled"
-            next_time_diff = "{} hour and {} minutes".format((chat.chat_time - now()).days * 24,
-                                                             (chat.chat_time - now()).seconds / 60)
+            seconds = (chat.chat_time - now()).days * 24 * 60 * 60 + (chat.chat_time - now()).seconds
+            next_time_diff = "{} hour and {} minutes".format(seconds/3600, seconds/60)
             message = "Hi {}, Congratulations! We have scheduled a call in next {}". \
                 format(user.name, next_time_diff)
             data_message = {}

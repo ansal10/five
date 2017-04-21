@@ -109,6 +109,12 @@
                             <li class="list-group-item list-group-item-success">Name : {{ userA.name }}</li>
                             <li class="list-group-item list-group-item-success">Email : {{ userA.email }}</li>
                             <li class="list-group-item list-group-item-success">FB Link : {{ userA.fb_link }}</li>
+                            <li class="list-group-item list-group-item-info">Days Available : {{ userA.daysAvail }}</li>
+                            <li class="list-group-item list-group-item-info">Time Available Form: {{ userA.filters.minTime }} To: {{ userA.filters.maxTime }}</li>
+                            <li class="list-group-item list-group-item-info">Time Zone: {{ userA.timezone }}</li>
+                            <li class="list-group-item list-group-item-info">Current Day and Time: {{ userA.displayTime }}</li>
+
+
                         </ul>
                     </div>
 
@@ -119,7 +125,7 @@
                                 Select User B <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="user in data.users">
+                                <li ng-repeat="user in available_users">
                                   <a ng-click="userSelected('userB', user.user_uuid )" href="#" value="{{ user.user_uuid }}" >
                                         {{ ( user.name || user.email || user.user_uuid ) }}
                                   </a>
@@ -134,17 +140,29 @@
                             <li class="list-group-item list-group-item-success">Name : {{ userB.name }}</li>
                             <li class="list-group-item list-group-item-success">Email : {{ userB.email }}</li>
                             <li class="list-group-item list-group-item-success">FB Link : {{ userB.fb_link }}</li>
+                            <li class="list-group-item list-group-item-info">Days Available : {{ userB.daysAvail }}</li>
+                            <li class="list-group-item list-group-item-info">Time Available Form: {{ userB.filters.minTime }} To: {{ userB.filters.maxTime }}</li>
+                            <li class="list-group-item list-group-item-info">Time Zone: {{ userB.timezone }}</li>
+                            <li class="list-group-item list-group-item-info">Current Day and Time: {{ userB.displayTime }}</li>
+
                         </ul>
 
-                    </div>
-                        <span ng-if="userA && userB">
-                            <div class="input-group">
+                      </div>
+                        <div class="alert alert-success" role="alert" ng-if="userA && userB && schedulePossible">
+                            <strong>Success</strong> Call Can be scheduled at specific time
+                        </div>
+                        <div class="alert alert-danger" role="alert" ng-if="userA && userB && !schedulePossible">
+                            <strong>Error</strong> Call schedule not posible
+                        </div>
+<!--                        <span ng-if="userA && userB">  -->
+                            <div class="input-group" ng-if="userA && userB">
                               <span class="input-group-addon" id="basic-addon1">Schedule Chat in Next</span>
-                              <input type="number" class="form-control"  placeholder="Number of Seconds" ng-model="chat_in_seconds" />
-                              <span class="input-group-addon" id="basic-addon2" ng-click="newChat(chat_in_seconds)">Schedule Chat in next {{ chat_in_seconds }} Seconds</span>
+                              <input type="text" class="form-control"  placeholder="Number of Seconds ( can be expression too 24*30-12 )" ng-model="$parent.chatInSecondsExpression" />
+                              <span class="input-group-addon" id="basic-addon2" ng-click="newChat()">Schedule Chat in next {{ chatInSeconds }} Seconds</span>
                             </div>
 
-                        </span>
+
+<!--                        </span>    -->
                 </div>
 
                 <div class="modal-body row">
@@ -197,6 +215,8 @@
     <script src="js/angular.min.js" ></script>
 
 
+    <script src="js/moment.js" type="application/javascript"></script>
+    <script src="js/moment_timezone.js" type="application/javascript"></script>
     <script src="js/five.js" ></script>
 
     <!-- Menu Toggle Script -->
