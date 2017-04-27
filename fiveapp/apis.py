@@ -51,6 +51,10 @@ def user(request):
         users = Users.objects.filter(firebase_user_id=firebase_user_id, facebook_id=facebook_id)
         if users.exists():
             user = users.first()
+
+            if not user.active:
+                return error_response("Your profile has been deactivated")
+
         else:
             user = Users(firebase_user_id=firebase_user_id, facebook_id=facebook_id, fb_data=fb_data)
             new_user = True
@@ -81,7 +85,7 @@ def user(request):
 def update_user_details(request):
     try:
         user_uuid, password = utils.retrieve_username_password_from_authorization(request)
-        if not Users.objects.filter(user_uuid=user_uuid).exists():
+        if not Users.objects.filter(user_uuid=user_uuid, active=True).exists():
             return error_response("Unauthorized Access", 401)
         user = Users.objects.filter(user_uuid=user_uuid).first()
         data = json.loads(request.body)
@@ -103,7 +107,7 @@ def update_user_details(request):
 def next_chat(request):
     try:
         user_uuid, password = utils.retrieve_username_password_from_authorization(request)
-        if not Users.objects.filter(user_uuid=user_uuid).exists():
+        if not Users.objects.filter(user_uuid=user_uuid, active=True).exists():
             return error_response("Unauthorized Access", 401)
 
         chat, on_going_chat = get_current_or_next_chat_for_user(user_uuid)
@@ -148,7 +152,7 @@ def next_chat(request):
 def get_session(request):
     try:
         user_uuid, password = utils.retrieve_username_password_from_authorization(request)
-        if not Users.objects.filter(user_uuid=user_uuid).exists():
+        if not Users.objects.filter(user_uuid=user_uuid, active=True).exists():
             return error_response("Unauthorized Access", 401)
 
         user = Users.objects.filter(user_uuid=user_uuid).first()
@@ -188,7 +192,7 @@ def get_session(request):
 def update_ratings(request):
     try:
         user_uuid, password = utils.retrieve_username_password_from_authorization(request)
-        if not Users.objects.filter(user_uuid=user_uuid).exists():
+        if not Users.objects.filter(user_uuid=user_uuid, active=True).exists():
             return error_response("Unauthorized Access", 401)
         user = Users.objects.get(user_uuid=user_uuid)
         data = json.loads(request.body)
@@ -230,7 +234,7 @@ def update_ratings(request):
 def get_filters(request):
     try:
         user_uuid, password = utils.retrieve_username_password_from_authorization(request)
-        if not Users.objects.filter(user_uuid=user_uuid).exists():
+        if not Users.objects.filter(user_uuid=user_uuid, active=True).exists():
             return error_response("Unauthorized Access", 401)
 
         user = Users.objects.get(user_uuid=user_uuid)
@@ -286,7 +290,7 @@ def notification(request):
     try:
         data = json.loads(request.body)
         user_uuid, password = utils.retrieve_username_password_from_authorization(request)
-        if not Users.objects.filter(user_uuid=user_uuid).exists():
+        if not Users.objects.filter(user_uuid=user_uuid, active=True).exists():
             return error_response("Unauthorized Access", 401)
 
         fcm_token = data['fcm_token']
@@ -302,7 +306,7 @@ def notification(request):
 
 
 def get_current_or_next_chat_for_user(user_uuid):
-    user = Users.objects.filter(user_uuid=user_uuid).first()
+    user = Users.objects.filter(user_uuid=user_uuid, active=True)
     from_time = utils.now() - timedelta(0, SECONDS)
     chats = Chats.objects.filter(Q(Q(userA=user) | Q(userB=user)), chat_time__gte=from_time)
 

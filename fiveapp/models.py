@@ -30,6 +30,7 @@ class Users(models.Model):
     fcm_token = models.CharField(max_length=255, null=True)
     app_id = models.CharField(max_length=255, null=True)
     timezone = models.CharField(max_length=255, null=True)
+    active = models.BooleanField(default=True)
 
 
 
